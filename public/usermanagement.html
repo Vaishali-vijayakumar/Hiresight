@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="hireSightApp" ng-controller="UserController as uc">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireSight - User Management</title>
+
+    <!-- a) Include AngularJS + Animations -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-animate.min.js"></script>
+
+    <style>
+        /* Universal Reset for consistent rendering */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f0ff;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #a490f0;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-name {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .nav a {
+            margin-left: 1.5rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav a:hover {
+            text-decoration: underline;
+        }
+
+        .dashboard {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .card {
+            background: white;
+            padding: 0.6rem 0.8rem;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card h4 {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        .card p {
+            margin: 0.3rem 0 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .card.total-users { background: #e3f2fd; border-left: 4px solid #2196f3; }
+        .card.active-users { background: #e8f5e9; border-left: 4px solid #4caf50; }
+        .card.inactive-users { background: #ffebee; border-left: 4px solid #f44336; }
+        .card.admin-users { background: #ede7f6; border-left: 4px solid #673ab7; }
+        .card.hr-users { background: #e0f2f1; border-left: 4px solid #009688; }
+        .card.recent-users { background: #fff8e1; border-left: 4px solid #ff9800; }
+
+        .management-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            border-bottom: 2px solid #e9edfb;
+            padding-bottom: 0.75rem;
+        }
+
+        .card p {
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .button-group {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background-color: #e9edfb;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            transition: background-color 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background-color: #dbe2f8;
+        }
+
+        .btn-primary {
+            background-color: #a490f0;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #8f7ce0;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #b0b6d1;
+            border-radius: 5px;
+            margin-bottom: 2rem;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 0.85rem;
+        }
+
+        .user-table th,
+        .user-table td {
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .user-table th {
+            background-color: #a490f0;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-table tbody tr:nth-child(odd) {
+            background-color: #f8f8ff;
+        }
+
+        .user-table tbody tr:hover {
+            background-color: #e9edfb;
+        }
+
+        .status-active {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .status-deactivated {
+            color: #ffc107;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .footer {
+            background-color: #f0f2f5;
+            padding: 20px;
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+            border-top: 1px solid #ddd;
+            margin-top: auto;
+        }
+
+        /* g) Animation via ngAnimate */
+        .fade.ng-enter {
+            transition: 0.3s ease-in;
+            opacity: 0;
+        }
+
+        .fade.ng-enter-active {
+            opacity: 1;
+        }
+
+        /* Additional styles for enhanced user management */
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.85rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 0 0.2rem;
+            background-color: #e9edfb;
+            color: #333;
+        }
+
+        .btn-small:hover {
+            background-color: #dbe2f8;
+        }
+
+        
+
+        .role-badge {
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .role-admin {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .role-hr {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .role-recruiter {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .role-jobseeker {
+            background-color: #ffc107;
+            color: #333;
+        }
+
+        .selected {
+            background-color: #e3f2fd !important;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="app-name">HireSight</div>
+        <nav class="nav">
+            <a href="adminhome.html" class="nav-link">Home</a>
+            <a href="login.html" class="nav-link">Logout</a>
+        </nav>
+    </header>
+
+    <main class="dashboard">
+        <!-- User Statistics -->
+        <div class="stats fade">
+            <div class="card total-users"><h4>Total Users</h4><p>{{users.length || 0}}</p></div>
+            <div class="card active-users"><h4>Active Users</h4><p>{{getActiveUsers() || 0}}</p></div>
+            <div class="card inactive-users"><h4>Inactive Users</h4><p>{{getInactiveUsers() || 0}}</p></div>
+            <div class="card admin-users"><h4>Admin Users</h4><p>{{getRoleCount('Admin') || 0}}</p></div>
+            <div class="card hr-users"><h4>HR Users</h4><p>{{getRoleCount('HR') || 0}}</p></div>
+            <div class="card recent-users"><h4>Recent Joins</h4><p>{{getRecentUsers() || 0}}</p></div>
+        </div>
+
+        <section class="management-card">
+            <h2>User Management</h2>
+            <p>Create, edit, and manage user access for the HireSight platform. Assign roles, reset passwords, and
+                manage accounts easily.</p><br>
+            <div ng-if="successMessage"
+                style="margin-bottom: 1rem; padding: 1rem; background: #d4edda; color: #155724; border-radius: 5px;">
+                {{ successMessage }}
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" ng-click="showAddUserModal()">Add User</button>
+                <button class="btn" ng-click="editSelectedUser()" ng-disabled="!selectedUser">Edit User</button>
+                <button class="btn" ng-click="toggleUserStatus()" ng-disabled="selectedUsers.length === 0">
+                    {{ getStatusToggleText() }}
+                </button>
+                <button class="btn" ng-click="exportUsers()">Export CSV</button>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search users by name, email, or role..." ng-model="searchQuery">
+            </div>
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" ng-model="selectAll" ng-change="toggleSelectAll()"></th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Join Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="user in filteredUsers = (users | filter:searchQuery)" class="fade" 
+                        ng-class="{selected: user.selected}">
+                        <td><input type="checkbox" ng-model="user.selected" ng-change="updateSelection()"></td>
+                        <td>{{ user.name | capitalize }}</td>
+                        <td>{{ user.email }}</td>
+                        <td><span class="role-badge role-{{user.role.toLowerCase()}}">{{ user.role }}</span></td>
+                        <td>
+                            <span ng-class="{
+                                    'status-active': user.status === 'Active',
+                                    'status-deactivated': user.status === 'Inactive',
+                                    'status-pending': user.status === 'Pending'
+                                }" status-highlight="{{ user.status }}">
+                                {{ user.status }}
+                            </span>
+                        </td>
+                        <td>{{ user.joinDate | date:'MM/dd/yyyy' }}</td>
+                        <td>
+                            <button class="btn-small" ng-click="editUser(user)">Edit</button>
+                            <button class="btn-small" ng-click="deleteUser(user)">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <!-- Add/Edit User Modal -->
+    <div class="modal" ng-class="{show: showModal}">
+        <div class="modal-content">
+            <h3>{{ modalTitle }}</h3>
+            <form ng-submit="saveUser()" name="userForm" novalidate>
+                <div class="form-group">
+                    <label for="userName">Name *</label>
+                    <input type="text" id="userName" ng-model="currentUser.name" required>
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Email *</label>
+                    <input type="email" id="userEmail" ng-model="currentUser.email" required>
+                </div>
+                <div class="form-group">
+                    <label for="userRole">Role *</label>
+                    <select id="userRole" ng-model="currentUser.role" required>
+                        <option value="">Select Role</option>
+                        <option value="Admin">Admin</option>
+                        <option value="HR">HR</option>
+                        <option value="Recruiter">Recruiter</option>
+                        <option value="Job Seeker">Job Seeker</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="userStatus">Status</label>
+                    <select id="userStatus" ng-model="currentUser.status">
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="userDepartment">Department</label>
+                    <input type="text" id="userDepartment" ng-model="currentUser.department">
+                </div>
+                <div class="form-group" ng-if="isEditing">
+                    <label for="userPassword">New Password</label>
+                    <input type="password" id="userPassword" ng-model="currentUser.password" placeholder="Leave blank to keep current password">
+                    <small style="color: #666; font-size: 0.85rem;">Minimum 6 characters. Leave blank to keep current password.</small>
+                </div>
+                <div class="form-group" ng-if="isEditing && currentUser.password">
+                    <label for="confirmPassword">Confirm New Password</label>
+                    <input type="password" id="confirmPassword" ng-model="currentUser.confirmPassword" placeholder="Confirm new password">
+                    <small ng-if="currentUser.password && currentUser.confirmPassword && currentUser.password !== currentUser.confirmPassword" style="color: #dc3545; font-size: 0.85rem;">Passwords do not match</small>
+                </div>
+                <div class="form-group" ng-if="!isEditing">
+                    <label for="userPasswordNew">Password *</label>
+                    <input type="password" id="userPasswordNew" ng-model="currentUser.password" placeholder="Enter password" required>
+                    <small style="color: #666; font-size: 0.85rem;">Minimum 6 characters required.</small>
+                </div>
+                <div class="form-group" ng-if="!isEditing">
+                    <label for="confirmPasswordNew">Confirm Password *</label>
+                    <input type="password" id="confirmPasswordNew" ng-model="currentUser.confirmPassword" placeholder="Confirm password" required>
+                    <small ng-if="currentUser.password && currentUser.confirmPassword && currentUser.password !== currentUser.confirmPassword" style="color: #dc3545; font-size: 0.85rem;">Passwords do not match</small>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn" ng-click="closeModal()">Cancel</button>
+                    <button type="submit" class="btn primary" ng-disabled="userForm.$invalid">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        © 2025 HireSight. All rights reserved.
+    </footer>
+
+    <script>
+        angular.module( 'hireSightApp', [ 'ngAnimate' ] )
+
+            .service( 'StatusService', function ()
+            {
+                this.getFormattedStatus = function ( status )
+                {
+                    return status.charAt( 0 ).toUpperCase() + status.slice( 1 );
+                };
+            } )
+
+            .factory( 'RoleFactory', function ()
+            {
+                return {
+                    roles: [ 'Admin', 'Recruiter', 'Job Seeker', 'Interviewer' ]
+                };
+            } )
+
+            .directive( 'statusHighlight', function ()
+            {
+                return {
+                    restrict: 'A',
+                    link: function ( scope, element, attrs )
+                    {
+                        if ( attrs.statusHighlight.toLowerCase() === 'active' )
+                        {
+                            element.css( 'font-weight', 'bold' );
+                            element.css( 'color', '#28a745' );
+                        }
+                    }
+                };
+            } )
+
+            .filter( 'capitalize', function ()
+            {
+                return function ( input )
+                {
+                    return input ? input.charAt( 0 ).toUpperCase() + input.slice( 1 ).toLowerCase() : '';
+                };
+            } )
+
+            .controller( 'UserController', function ( $scope, $http, $timeout, $log, StatusService, RoleFactory )
+            {
+                // Initialize scope variables
+                $scope.users = [];
+                $scope.selectedUsers = [];
+                $scope.selectedUser = null;
+                $scope.selectAll = false;
+                $scope.showModal = false;
+                $scope.modalTitle = '';
+                $scope.currentUser = {};
+                $scope.successMessage = '';
+                $scope.isEditing = false;
+
+                // Load users from backend
+                $scope.loadUsers = function() {
+                    $http.get('http://localhost:3000/api/users')
+                        .then(function(response) {
+                            $scope.users = response.data.map(function(user) {
+                                user.selected = false;
+                                if (!user.joinDate) user.joinDate = new Date();
+                                return user;
+                            });
+                            $log.info('User data loaded successfully from MongoDB.');
+                        })
+                        .catch(function(error) {
+                            $log.error('Failed to load user data.', error);
+                        });
+                };
+
+                // Initialize
+                $scope.loadUsers();
+
+                // Selection management
+                $scope.updateSelection = function() {
+                    $scope.selectedUsers = $scope.users.filter(function(user) { return user.selected; });
+                    $scope.selectedUser = $scope.selectedUsers.length === 1 ? $scope.selectedUsers[0] : null;
+                    $scope.selectAll = $scope.users.length > 0 && $scope.selectedUsers.length === $scope.users.length;
+                };
+
+                $scope.toggleSelectAll = function() {
+                    $scope.users.forEach(function(user) {
+                        user.selected = $scope.selectAll;
+                    });
+                    $scope.updateSelection();
+                };
+
+                // Modal functions
+                $scope.showAddUserModal = function() {
+                    $scope.modalTitle = 'Add New User';
+                    $scope.currentUser = { status: 'Active', joinDate: new Date() };
+                    $scope.isEditing = false;
+                    $scope.showModal = true;
+                };
+
+                $scope.editUser = function(user) {
+                    $scope.modalTitle = 'Edit User';
+                    $scope.currentUser = angular.copy(user);
+                    $scope.isEditing = true;
+                    $scope.showModal = true;
+                };
+
+                $scope.editSelectedUser = function() {
+                    if ($scope.selectedUser) {
+                        $scope.editUser($scope.selectedUser);
+                    }
+                };
+
+                $scope.closeModal = function() {
+                    $scope.showModal = false;
+                    $scope.currentUser = {};
+                };
+
+                // Save user function
+                $scope.saveUser = function() {
+                    // Password validation
+                    if ($scope.currentUser.password || $scope.currentUser.confirmPassword) {
+                        if (!$scope.currentUser.password || $scope.currentUser.password.length < 6) {
+                            alert('Password must be at least 6 characters long.');
+                            return;
+                        }
+                        if ($scope.currentUser.password !== $scope.currentUser.confirmPassword) {
+                            alert('Passwords do not match.');
+                            return;
+                        }
+                    }
+                    
+                    // For new users, password is required
+                    if (!$scope.isEditing && !$scope.currentUser.password) {
+                        alert('Password is required for new users.');
+                        return;
+                    }
+                    
+                    // Create a copy of user data to send
+                    var userData = angular.copy($scope.currentUser);
+                    // Remove confirmPassword field before sending to backend
+                    delete userData.confirmPassword;
+                    
+                    if ($scope.isEditing) {
+                        // For editing, only send password if it was actually changed
+                        if (!userData.password) {
+                            delete userData.password;
+                        }
+                        
+                        // Update existing user
+                        $http.put('http://localhost:3000/api/users/' + userData._id, userData)
+                            .then(function(response) {
+                                var index = $scope.users.findIndex(function(u) { return u._id === userData._id; });
+                                if (index !== -1) {
+                                    $scope.users[index] = angular.copy(response.data);
+                                    $scope.users[index].selected = false;
+                                }
+                                $scope.showSuccessMessage('User updated successfully!');
+                                $scope.closeModal();
+                            })
+                            .catch(function(error) {
+                                alert('Error updating user: ' + (error.data?.error || 'Unknown error'));
+                            });
+                    } else {
+                        // Add new user - check if we need to use admin endpoint
+                        var restrictedRoles = ['Admin', 'HR', 'Recruiter'];
+                        var isRestrictedRole = restrictedRoles.includes(userData.role);
+                        
+                        if (isRestrictedRole) {
+                            // Use admin endpoint for Admin/HR/Recruiter accounts
+                            userData.adminEmail = 'admin@hiresight.com'; // You might want to get this from session
+                            $http.post('http://localhost:3000/api/admin/create-user', userData)
+                                .then(function(response) {
+                                    response.data.user.selected = false;
+                                    $scope.users.push(response.data.user);
+                                    $scope.showSuccessMessage('User added successfully!');
+                                    $scope.closeModal();
+                                })
+                                .catch(function(error) {
+                                    alert('Error adding user: ' + (error.data?.error || 'Unknown error'));
+                                });
+                        } else {
+                            // Use regular endpoint for User accounts
+                            $http.post('http://localhost:3000/api/users', userData)
+                                .then(function(response) {
+                                    response.data.selected = false;
+                                    $scope.users.push(response.data);
+                                    $scope.showSuccessMessage('User added successfully!');
+                                    $scope.closeModal();
+                                })
+                                .catch(function(error) {
+                                    alert('Error adding user: ' + (error.data?.error || 'Unknown error'));
+                                });
+                        }
+                    }
+                };
+
+                // Delete functions
+                $scope.deleteUser = function(user) {
+                    if (confirm('Are you sure you want to delete ' + user.name + '?')) {
+                        $http.delete('http://localhost:3000/api/users/' + user._id)
+                            .then(function() {
+                                $scope.users = $scope.users.filter(function(u) { return u._id !== user._id; });
+                                $scope.updateSelection();
+                                $scope.showSuccessMessage('User deleted successfully!');
+                            })
+                            .catch(function(error) {
+                                alert('Error deleting user: ' + (error.data?.error || 'Unknown error'));
+                            });
+                    }
+                };
+
+
+                // Status management
+                $scope.toggleUserStatus = function() {
+                    if ($scope.selectedUsers.length === 0) return;
+                    
+                    var newStatus = $scope.selectedUsers[0].status === 'Active' ? 'Inactive' : 'Active';
+                    var userIds = $scope.selectedUsers.map(function(user) { return user._id; });
+                    
+                    $http.patch('http://localhost:3000/api/users/bulk/status', { userIds: userIds, status: newStatus })
+                        .then(function() {
+                            $scope.selectedUsers.forEach(function(user) {
+                                user.status = newStatus;
+                            });
+                            $scope.showSuccessMessage('User status updated successfully!');
+                        })
+                        .catch(function(error) {
+                            alert('Error updating user status: ' + (error.data?.error || 'Unknown error'));
+                        });
+                };
+
+                $scope.getStatusToggleText = function() {
+                    if ($scope.selectedUsers.length === 0) return 'Toggle Status';
+                    var activeCount = $scope.selectedUsers.filter(function(user) { return user.status === 'Active'; }).length;
+                    return activeCount > 0 ? 'Deactivate' : 'Activate';
+                };
+
+
+                // Export function
+                $scope.exportUsers = function() {
+                    var csvContent = 'Name,Email,Role,Status,Department,Join Date\n';
+                    $scope.users.forEach(function(user) {
+                        csvContent += user.name + ',' + user.email + ',' + user.role + ',' + user.status + ',' + (user.department || '') + ',' + new Date(user.joinDate).toLocaleDateString() + '\n';
+                    });
+                    
+                    var blob = new Blob([csvContent], { type: 'text/csv' });
+                    var url = window.URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'users_export.csv';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    
+                    $scope.showSuccessMessage('Users exported successfully!');
+                };
+
+                // Utility functions
+                $scope.showSuccessMessage = function(message) {
+                    $scope.successMessage = message;
+                    $timeout(function() {
+                        $scope.successMessage = '';
+                    }, 3000);
+                };
+
+                $scope.formatStatus = function(status) {
+                    return StatusService.getFormattedStatus(status);
+                };
+
+                // Statistics calculation functions
+                $scope.getActiveUsers = function() {
+                    return $scope.users.filter(function(user) { return user.status === 'Active'; }).length;
+                };
+
+                $scope.getInactiveUsers = function() {
+                    return $scope.users.filter(function(user) { return user.status === 'Inactive'; }).length;
+                };
+
+                $scope.getRoleCount = function(role) {
+                    return $scope.users.filter(function(user) { return user.role === role; }).length;
+                };
+
+                $scope.getRecentUsers = function() {
+                    var thirtyDaysAgo = new Date();
+                    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                    return $scope.users.filter(function(user) { 
+                        return new Date(user.joinDate) >= thirtyDaysAgo; 
+                    }).length;
+                };
+            } );
+    </script>
+
+
+</body>
+
+</html>

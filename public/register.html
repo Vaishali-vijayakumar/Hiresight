@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="hireSightApp">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register | HireSight</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: #f0f0ff;
+      color: #333;
+    }
+
+    header {
+      background: #a490f0;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+    }
+
+    .logo {
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+
+    .nav a {
+      margin-left: 1.5rem;
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .nav a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      display: flex;
+      justify-content: space-between;
+      padding: 4rem 10%;
+      align-items: center;
+      animation: fadeIn 0.7s ease-in;
+      min-height: calc(100vh - 200px);
+    }
+
+    .left {
+      flex: 1;
+      padding-right: 4rem;
+    }
+
+    .left iframe {
+      width: 100%;
+      max-width: 640px;
+      height: 360px;
+      border-radius: 16px;
+      border: none;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 8px 32px rgba(164, 144, 240, 0.3);
+    }
+
+    .left h2 {
+      font-size: 2.5rem;
+      color: #a490f0;
+      margin-bottom: 1rem;
+      font-weight: bold;
+    }
+
+    .left p {
+      color: #555;
+      font-size: 1.1rem;
+      max-width: 500px;
+      line-height: 1.6;
+    }
+
+    .right.form-slide.ng-enter {
+      opacity: 0;
+      transform: translateX(50px);
+    }
+
+    .right.form-slide.ng-enter-active {
+      opacity: 1;
+      transform: translateX(0);
+      transition: all 0.5s ease-in-out;
+    }
+
+    .right {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 18px;
+      box-shadow: 0 20px 60px rgba(164, 144, 240, 0.15);
+      flex: 1;
+      max-width: 450px;
+      border: 1px solid rgba(164, 144, 240, 0.1);
+    }
+
+    .right h2 {
+      text-align: center;
+      color: #a490f0;
+      margin-bottom: 2rem;
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+
+    select,
+    input {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 8px;
+      border: 2px solid #e9edfb;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+      background: #f8f9ff;
+    }
+
+    select:focus,
+    input:focus {
+      outline: none;
+      border-color: #a490f0;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(164, 144, 240, 0.1);
+    }
+
+    select {
+      cursor: pointer;
+    }
+
+    button {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #a490f0, #8f7ce0);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(164, 144, 240, 0.4);
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #8f7ce0, #7c6dd0);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(164, 144, 240, 0.5);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .form-error {
+      color: #f44336;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      background: #ffebee;
+      border-radius: 4px;
+      border-left: 4px solid #f44336;
+    }
+
+    .success-message {
+      color: #4caf50;
+      font-size: 0.9rem;
+      text-align: center;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      background: #e8f5e8;
+      border-radius: 4px;
+      border-left: 4px solid #4caf50;
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 1rem;
+      color: #666;
+    }
+
+    .login-link a {
+      color: #a490f0;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    .role-notice {
+      background: #e3f2fd;
+      border: 1px solid #2196f3;
+      border-radius: 6px;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      color: #1976d2;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .role-notice i {
+      margin-right: 0.5rem;
+      color: #2196f3;
+    }
+
+    select option:disabled {
+      color: #999;
+      font-style: italic;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      padding: 2rem;
+      color: #888;
+      border-top: 1px solid #e9edfb;
+      background: white;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        flex-direction: column;
+        padding: 2rem;
+      }
+
+      .left,
+      .right {
+        max-width: 100%;
+        padding: 0;
+      }
+
+      .left {
+        padding-right: 0;
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .left iframe {
+        height: 250px;
+      }
+
+      .right {
+        padding: 2rem;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body ng-controller="RegisterController">
+  <header>
+    <div class="logo">HireSight</div>
+    <nav class="nav">
+      <a href="login.html">Home</a>
+      <a href="login.html">Login</a>
+    </nav>
+  </header>
+  <div class="container">
+    <div class="left">
+      <iframe src="https://www.youtube.com/embed/SvjP8kXWuyY?autoplay=1&mute=1&loop=1&playlist=SvjP8kXWuyY"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+      <h2>Join HireSight Today</h2>
+      <p>Create your account to unlock your personalized hiring dashboard and start your journey to success.</p>
+    </div>
+    <div class="right form-slide">
+      <h2>Register</h2>
+      <div class="success-message" ng-show="successMessage">{{ successMessage }}</div>
+      <div class="form-error" ng-show="errors.general">{{ errors.general }}</div>
+      <form name="registerForm" ng-submit="register()" novalidate>
+        <select ng-model="user.role" required ng-change="onRoleChange()">
+          <option value="">Select user type</option>
+          <option value="User">User (Job Seeker)</option>
+          <option value="Admin" ng-disabled="true" title="Admin accounts can only be created by existing admins">Admin
+            (Restricted)</option>
+          <option value="HR" ng-disabled="true" title="HR accounts can only be created by admins">HR Manager
+            (Restricted)</option>
+          <option value="Recruiter" ng-disabled="true" title="Recruiter accounts can only be created by admins">
+            Recruiter (Restricted)</option>
+        </select>
+        <div class="role-notice" ng-show="showRoleNotice">
+          <i class="fas fa-info-circle"></i>
+          Admin, HR, and Recruiter accounts can only be created by system administrators.
+          <br><strong>Please select "User" to create a regular account.</strong>
+        </div>
+        <div class="form-error" ng-show="errors.role">{{ errors.role }}</div>
+
+        <input type="text" placeholder="Full Name" ng-model="user.name" required />
+        <div class="form-error" ng-show="errors.name">{{ errors.name }}</div>
+
+        <input type="email" placeholder="you@example.com" ng-model="user.email" required />
+        <div class="form-error" ng-show="errors.email">{{ errors.email }}</div>
+
+        <div style="position: relative; margin-bottom: 0.5rem;">
+          <input type="{{showPassword ? 'text' : 'password'}}" placeholder="Create a strong password"
+            ng-model="user.password" required style="margin-bottom: 0; padding-right: 40px;" />
+          <i class="fas" ng-class="showPassword ? 'fa-eye-slash' : 'fa-eye'" ng-click="showPassword = !showPassword"
+            title="Toggle Password Visibility"
+            style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #888; z-index: 10; padding: 5px;"></i>
+        </div>
+        <div class="password-hint" style="font-size: 0.8rem; color: #666; margin-bottom: 0.8rem; text-align: left;"><i
+            class="fas fa-shield-alt" style="color: #a490f0; margin-right: 4px;"></i> Password must be at least 8
+          characters and include uppercase, lowercase, numbers, and special characters.</div>
+        <div class="form-error" ng-show="errors.password">{{ errors.password }}</div>
+
+        <div style="position: relative; margin-bottom: 0.5rem;">
+          <input type="{{showConfirmPassword ? 'text' : 'password'}}" placeholder="Confirm Password"
+            ng-model="user.confirmPassword" required style="margin-bottom: 0; padding-right: 40px;" />
+          <i class="fas" ng-class="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"
+            ng-click="showConfirmPassword = !showConfirmPassword" title="Toggle Password Visibility"
+            style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #888; z-index: 10; padding: 5px;"></i>
+        </div>
+        <div class="form-error" ng-show="errors.confirmPassword">{{ errors.confirmPassword }}</div>
+
+        <button type="submit" ng-disabled="isSubmitting">
+          <span ng-show="!isSubmitting">Create Account</span>
+          <span ng-show="isSubmitting">Creating Account...</span>
+        </button>
+      </form>
+      <div class="login-link">
+        Already have an account? <a href="login.html">Sign In</a>
+      </div>
+    </div>
+  </div>
+  <footer>© 2025 HireSight. All rights reserved.</footer>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-animate.min.js"></script>
+  <script>
+    angular.module('hireSightApp', ['ngAnimate'])
+      .controller('RegisterController', ['$scope', '$window', '$http', function ($scope, $window, $http) {
+        // Initialize scope variables
+        $scope.user = {};
+        $scope.errors = {};
+        $scope.successMessage = '';
+        $scope.isSubmitting = false;
+        $scope.showRoleNotice = false;
+        $scope.showPassword = false;
+        $scope.showConfirmPassword = false;
+
+        // Handle role change
+        $scope.onRoleChange = function () {
+          const restrictedRoles = ['Admin', 'HR', 'Recruiter'];
+          if (restrictedRoles.includes($scope.user.role)) {
+            $scope.showRoleNotice = true;
+            $scope.user.role = ''; // Reset to empty
+          } else {
+            $scope.showRoleNotice = false;
+          }
+        };
+
+        // Validation function
+        $scope.validateForm = function () {
+          $scope.errors = {};
+          var valid = true;
+
+          if (!$scope.user.role) {
+            $scope.errors.role = "Please select a user type.";
+            valid = false;
+          }
+
+          // Check for restricted roles
+          const restrictedRoles = ['Admin', 'HR', 'Recruiter'];
+          if (restrictedRoles.includes($scope.user.role)) {
+            $scope.errors.role = "Admin, HR, and Recruiter accounts can only be created by system administrators.";
+            valid = false;
+          }
+
+          if (!$scope.user.name || $scope.user.name.length < 3) {
+            $scope.errors.name = "Name must be at least 3 characters.";
+            valid = false;
+          }
+
+          var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test($scope.user.email || '')) {
+            $scope.errors.email = "Please enter a valid email address.";
+            valid = false;
+          }
+
+          var passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
+          if (!$scope.user.password || $scope.user.password.length < 8 || !passwordRegex.test($scope.user.password)) {
+            $scope.errors.password = "Your password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.";
+            valid = false;
+          }
+
+          if ($scope.user.password !== $scope.user.confirmPassword) {
+            $scope.errors.confirmPassword = "Passwords do not match.";
+            valid = false;
+          }
+
+          return valid;
+        };
+
+        // Register function
+        $scope.register = function () {
+          if (!$scope.validateForm()) {
+            return;
+          }
+
+          $scope.isSubmitting = true;
+          $scope.successMessage = '';
+
+          // Prepare user data
+          var userData = {
+            role: $scope.user.role,
+            name: $scope.user.name,
+            email: $scope.user.email,
+            password: $scope.user.password
+          };
+
+          $http.post('http://localhost:3000/api/register', userData)
+            .then(function (response) {
+              $scope.isSubmitting = false;
+              $scope.successMessage = 'Account created successfully! You can now login with your credentials. Redirecting to login...';
+              setTimeout(function () {
+                $window.location.href = 'login.html';
+              }, 3000);
+            })
+            .catch(function (error) {
+              $scope.isSubmitting = false;
+              var errorMessage = 'Registration failed. Please try again.';
+
+              if (error.data && error.data.error) {
+                errorMessage = error.data.error;
+              } else if (error.data && error.data.details) {
+                errorMessage = error.data.details;
+              }
+
+              // Handle specific error types
+              if (errorMessage.toLowerCase().includes('email already')) {
+                $scope.errors.email = 'This email is already registered. Please use a different email or try logging in.';
+              } else if (errorMessage.includes('password')) {
+                $scope.errors.password = errorMessage;
+              } else if (errorMessage.includes('admin') || errorMessage.includes('authorization')) {
+                $scope.errors.role = errorMessage;
+              } else if (errorMessage.includes('format')) {
+                $scope.errors.email = errorMessage;
+              } else {
+                $scope.errors.general = errorMessage;
+              }
+
+              console.error('Registration error:', error);
+            });
+        };
+      }]);
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="resumeApp">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HireSight - Professional Resume Builder & Analyzer</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-animate.js"></script>
+  <style>
+    /* Universal Reset for consistent rendering */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f0ff;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: #a490f0;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .app-name {
+      font-weight: bold;
+      font-size: 1.5rem;
+      color: white;
+    }
+
+    .nav a {
+      margin-left: 1.5rem;
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .nav a:hover {
+      text-decoration: underline;
+    }
+
+    .dashboard {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .management-card {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 1rem;
+    }
+
+    .management-card h2 {
+      color: #333;
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-size: 1.75rem;
+      border-bottom: 2px solid #e9edfb;
+      padding-bottom: 0.75rem;
+    }
+
+    .management-card h3 {
+      color: #333;
+      margin-top: 0;
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+      color: #a490f0;
+    }
+
+    .management-card p {
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    /* Statistics Cards */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+    }
+
+    .card h4 {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 0.5rem;
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #a490f0;
+    }
+
+    .card.resume-success { background: #e3f2fd; border-left: 4px solid #2196f3; }
+    .card.build-time { background: #e8f5e9; border-left: 4px solid #4caf50; }
+    .card.tips-count { background: #fff8e1; border-left: 4px solid #ff9800; }
+    .card.ats-pass { background: #fce4ec; border-left: 4px solid #e91e63; }
+
+    /* Hero Section */
+    .hero-section {
+      background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+      color: #a490f0;
+      padding: 3rem 2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .hero-section h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .hero-section p {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+
+    /* Buttons */
+    .btn {
+      background-color: #e9edfb;
+      color: #333;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      transition: background-color 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      background-color: #dbe2f8;
+    }
+
+    .btn-primary {
+      background-color: #a490f0;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #8f7ce0;
+    }
+
+    .btn-large {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+    }
+
+    /* Tips Grid - Single Row Layout */
+    .tips-grid {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+      padding-bottom: 1rem;
+    }
+
+    .tips-grid::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .tips-grid::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    .tips-grid::-webkit-scrollbar-thumb {
+      background: #a490f0;
+      border-radius: 4px;
+    }
+
+    .tips-grid::-webkit-scrollbar-thumb:hover {
+      background: #8f7ce0;
+    }
+
+    .tip-card {
+      background: #f8f8ff;
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-left: 4px solid #a490f0;
+      transition: transform 0.3s ease;
+      min-width: 300px;
+      flex-shrink: 0;
+    }
+
+    .tip-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(164, 144, 240, 0.2);
+    }
+
+    .tip-card h4 {
+      color: #a490f0;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+      white-space: nowrap;
+    }
+
+    .tip-card ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .tip-card li {
+      margin-bottom: 0.5rem;
+      line-height: 1.4;
+    }
+
+    /* Video Section */
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .video-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .video-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .video-card iframe {
+      width: 100%;
+      height: 250px;
+      border: none;
+    }
+
+    .video-info {
+      padding: 1rem;
+    }
+
+    .video-info h4 {
+      color: #333;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .video-info p {
+      color: #666;
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    /* Process Steps - Single Row Layout */
+    .process-steps {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 1.5rem;
+      margin-top: 2rem;
+      padding-bottom: 1rem;
+    }
+
+    .process-steps::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .process-steps::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    .process-steps::-webkit-scrollbar-thumb {
+      background: #a490f0;
+      border-radius: 4px;
+    }
+
+    .process-steps::-webkit-scrollbar-thumb:hover {
+      background: #8f7ce0;
+    }
+
+    .step-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      min-width: 250px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+
+    .step-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(164, 144, 240, 0.2);
+    }
+
+    .step-number {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #a490f0;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 0 auto 1rem;
+    }
+
+    .step-card h4 {
+      color: #333;
+      margin-bottom: 1rem;
+    }
+
+    .step-card p {
+      color: #666;
+      line-height: 1.4;
+    }
+
+    /* Common Mistakes - Single Row Layout */
+    .mistakes-grid {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+      padding-bottom: 1rem;
+    }
+
+    .mistakes-grid::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .mistakes-grid::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    .mistakes-grid::-webkit-scrollbar-thumb {
+      background: #f44336;
+      border-radius: 4px;
+    }
+
+    .mistakes-grid::-webkit-scrollbar-thumb:hover {
+      background: #d32f2f;
+    }
+
+    .mistake-card {
+      background: #fff5f5;
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-left: 4px solid #f44336;
+      min-width: 280px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+
+    .mistake-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2);
+    }
+
+    .mistake-card h4 {
+      color: #d32f2f;
+      margin-bottom: 0.5rem;
+    }
+
+    .mistake-card p {
+      color: #666;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .solution {
+      background: #e8f5e9;
+      padding: 0.8rem;
+      border-radius: 6px;
+      border-left: 3px solid #4caf50;
+      font-size: 0.9rem;
+    }
+
+    .solution strong {
+      color: #2e7d32;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .nav {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .nav a {
+        margin-left: 0;
+      }
+
+      .hero-section h1 {
+        font-size: 2rem;
+      }
+
+      .hero-section p {
+        font-size: 1rem;
+      }
+
+      .dashboard {
+        padding: 1rem;
+      }
+
+      .stats {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
+
+      .video-card iframe {
+        height: 200px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-section {
+        padding: 2rem 1rem;
+      }
+
+      .management-card {
+        padding: 0.8rem;
+      }
+
+      .video-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tips-grid, .mistakes-grid, .process-steps {
+        flex-wrap: wrap;
+        overflow-x: visible;
+      }
+      
+      .tip-card, .mistake-card, .step-card {
+        min-width: 100%;
+        flex-shrink: 1;
+      }
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    ul li {
+      margin-bottom: 8px;
+    }
+
+    .fade.ng-enter, .fade.ng-leave {
+      transition: 0.5s linear all;
+      display: block;
+    }
+    .fade.ng-enter {
+      opacity: 0;
+    }
+    .fade.ng-enter-active {
+      opacity: 1;
+    }
+    .fade.ng-leave {
+      opacity: 1;
+    }
+    .fade.ng-leave-active {
+      opacity: 0;
+    }
+  </style>
+</head>
+
+<body ng-controller="ResumeController">
+  <header class="header">
+    <div class="app-name">HireSight</div>
+    <nav class="nav">
+      <a href="resumehome.html">Home</a>
+      <a href="resumeupload.html">Upload Resume</a>
+      <a href="login.html">Logout</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <h1>Build Professional Resumes That Get You Hired</h1>
+    <p>Master the art of resume writing with expert tips, AI analysis, and professional templates</p>
+    <a href="resumeupload.html" class="btn btn-primary btn-large">Analyze Your Resume Now</a>
+  </section>
+
+  <main class="dashboard">
+    <!-- Resume Statistics -->
+    <div class="stats fade">
+      <div class="card resume-success">
+        <h4>Resume Success Rate</h4>
+        <p>73%</p>
+      </div>
+      <div class="card build-time">
+        <h4>Avg Build Time</h4>
+        <p>2.5hrs</p>
+      </div>
+      <div class="card tips-count">
+        <h4>Expert Tips Available</h4>
+        <p>50+</p>
+      </div>
+      <div class="card ats-pass">
+        <h4>ATS Pass Rate</h4>
+        <p>68%</p>
+      </div>
+    </div>
+
+    <!-- How to Build Resume -->
+    <div class="management-card">
+      <h2>🛠️ How to Build a Winning Resume</h2>
+      <p>Follow this proven step-by-step process to create a resume that stands out to employers and passes ATS systems:</p>
+      
+      <div class="process-steps">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h4>Choose the Right Format</h4>
+          <p>Select chronological, functional, or combination format based on your career stage and industry</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h4>Craft Compelling Content</h4>
+          <p>Write powerful summaries, quantify achievements, and use industry-specific keywords</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h4>Optimize for ATS</h4>
+          <p>Ensure your resume passes automated screening systems with proper formatting and keywords</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <h4>Perfect & Polish</h4>
+          <p>Proofread thoroughly, get feedback, and tailor for each job application</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expert Resume Tips -->
+    <div class="management-card">
+      <h2>💡 Expert Resume Writing Tips</h2>
+      <p>Professional insights from HR experts, hiring managers, and career coaches to make your resume irresistible:</p>
+      
+      <div class="tips-grid">
+        <div class="tip-card">
+          <h4>🎯 Content & Writing</h4>
+          <ul>
+            <li><strong>Quantify Everything:</strong> Use numbers, percentages, and metrics to showcase your impact</li>
+            <li><strong>Power Words:</strong> Start bullet points with action verbs like "spearheaded," "optimized," "transformed"</li>
+            <li><strong>Tailor Each Application:</strong> Customize your resume for each job using relevant keywords</li>
+            <li><strong>Show Results:</strong> Focus on achievements and outcomes, not just job duties</li>
+            <li><strong>Keep it Current:</strong> Include recent accomplishments and modern skill sets</li>
+          </ul>
+        </div>
+
+        <div class="tip-card">
+          <h4>🤖 ATS Optimization</h4>
+          <ul>
+            <li><strong>Simple Formatting:</strong> Use standard fonts (Arial, Calibri) and avoid graphics/tables</li>
+            <li><strong>Keyword Strategy:</strong> Mirror job description language naturally throughout your resume</li>
+            <li><strong>Standard Headers:</strong> Use conventional section names like "Professional Experience"</li>
+            <li><strong>File Format:</strong> Save as both PDF and Word documents for different systems</li>
+            <li><strong>Contact Info:</strong> Include phone, email, LinkedIn, and location clearly</li>
+          </ul>
+        </div>
+
+        <div class="tip-card">
+          <h4>🎨 Design & Format</h4>
+          <ul>
+            <li><strong>Clean Layout:</strong> Use plenty of white space and consistent formatting</li>
+            <li><strong>Readable Fonts:</strong> Stick to 10-12pt professional fonts</li>
+            <li><strong>Logical Order:</strong> Contact info, summary, experience, education, skills</li>
+            <li><strong>Bullet Points:</strong> Use bullets for easy scanning, not paragraphs</li>
+            <li><strong>Page Length:</strong> 1 page for early career, 2 pages max for experienced professionals</li>
+          </ul>
+        </div>
+
+        <div class="tip-card">
+          <h4>🚀 Advanced Strategies</h4>
+          <ul>
+            <li><strong>Professional Summary:</strong> 3-4 lines highlighting your unique value proposition</li>
+            <li><strong>Skills Section:</strong> Mix of hard and soft skills relevant to the target role</li>
+            <li><strong>Career Progression:</strong> Show growth and increasing responsibilities</li>
+            <li><strong>Industry Keywords:</strong> Research and include sector-specific terminology</li>
+            <li><strong>Social Proof:</strong> Include awards, certifications, and notable projects</li>
+          </ul>
+        </div>
+
+        <div class="tip-card">
+          <h4>📱 Modern Trends</h4>
+          <ul>
+            <li><strong>LinkedIn Integration:</strong> Ensure your LinkedIn profile matches your resume</li>
+            <li><strong>Digital Portfolio:</strong> Include links to work samples or personal websites</li>
+            <li><strong>Remote Work Skills:</strong> Highlight virtual collaboration and communication abilities</li>
+            <li><strong>AI & Automation:</strong> Show familiarity with modern tools and technologies</li>
+            <li><strong>Continuous Learning:</strong> Demonstrate ongoing skill development and adaptability</li>
+          </ul>
+        </div>
+
+        <div class="tip-card">
+          <h4>🎓 Industry-Specific</h4>
+          <ul>
+            <li><strong>Tech:</strong> Emphasize programming languages, frameworks, and project outcomes</li>
+            <li><strong>Healthcare:</strong> Highlight certifications, patient outcomes, and regulatory knowledge</li>
+            <li><strong>Finance:</strong> Focus on analytical skills, compliance experience, and financial impact</li>
+            <li><strong>Marketing:</strong> Showcase campaign results, digital skills, and creative achievements</li>
+            <li><strong>Education:</strong> Emphasize teaching philosophy, student outcomes, and curriculum development</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Common Resume Mistakes -->
+    <div class="management-card">
+      <h2>Common Resume Mistakes to Avoid</h2>
+      <p>Learn from the most frequent resume errors that can hurt your chances of getting an interview:</p>
+      
+      <div class="mistakes-grid">
+        <div class="mistake-card">
+          <h4>Spelling & Grammar Errors</h4>
+          <p>Even minor typos can immediately disqualify your application and signal lack of attention to detail.</p>
+          <div class="solution">
+            <strong>Solution:</strong> Use spell-check, read aloud, and have others proofread your resume before submitting.
+          </div>
+        </div>
+
+        <div class="mistake-card">
+          <h4>Generic, One-Size-Fits-All</h4>
+          <p>Using the same resume for every application shows lack of genuine interest and effort.</p>
+          <div class="solution">
+            <strong>Solution:</strong> Customize your resume for each position by highlighting relevant experience and keywords.
+          </div>
+        </div>
+
+        <div class="mistake-card">
+          <h4>Missing Quantified Results</h4>
+          <p>Vague descriptions without metrics fail to demonstrate your real impact and value.</p>
+          <div class="solution">
+            <strong>Solution:</strong> Include specific numbers: "Increased sales by 25%" vs "Improved sales performance."
+          </div>
+        </div>
+
+        <div class="mistake-card">
+          <h4>Poor Keyword Optimization</h4>
+          <p>Lack of relevant keywords means ATS systems may filter out your resume automatically.</p>
+          <div class="solution">
+            <strong>Solution:</strong> Mirror important terms from job descriptions naturally throughout your resume content.
+          </div>
+        </div>
+
+        <div class="mistake-card">
+          <h4>Overly Complex Formatting</h4>
+          <p>Fancy designs may look appealing but often break in ATS systems and reduce readability.</p>
+          <div class="solution">
+            <strong>Solution:</strong> Use clean, simple formatting with standard fonts and clear section headers.
+          </div>
+        </div>
+
+        <div class="mistake-card">
+          <h4>Outdated Information</h4>
+          <p>Including irrelevant old jobs, outdated skills, or ancient contact information hurts your credibility.</p>
+          <div class="solution">
+            <strong>Solution:</strong> Keep your resume current and relevant to your target role and industry trends.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Tutorials -->
+    <div class="management-card">
+      <h2>Expert Video Tutorials</h2>
+      <p>Watch these professional guides to master resume writing and job search strategies:</p>
+      
+      <div class="video-grid">
+        <div class="video-card">
+          <iframe src="https://www.youtube.com/embed/Tt08KmFfIYQ" allowfullscreen></iframe>
+          <div class="video-info">
+            <h4>How to Write a Resume That Beats the ATS</h4>
+            <p>Learn the secrets of ATS optimization from a hiring manager with 10+ years of experience.</p>
+          </div>
+        </div>
+
+        <div class="video-card">
+          <iframe src="https://www.youtube.com/embed/GyjzOKdaioU" allowfullscreen></iframe>
+          <div class="video-info">
+            <h4>Resume Writing Tips That Get You Hired</h4>
+            <p>Professional recruiter shares insider tips on what hiring managers really look for in resumes.</p>
+          </div>
+        </div>
+        <div class="video-card">
+          <iframe src="https://www.youtube.com/embed/ciIkiWwZnlc" allowfullscreen></iframe>
+          <div class="video-info">
+            <h4>How to Make Your Resume Stand Out</h4>
+            <p>Career coach reveals strategies to make your resume memorable and interview-worthy.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="management-card">
+      <h2>About HireSight</h2>
+      <p>
+        HireSight is your comprehensive resume-building assistant powered by AI technology. We help job seekers create 
+        professional, ATS-optimized resumes that get noticed by hiring managers. Our platform combines expert knowledge 
+        with advanced analysis to give you the competitive edge in today's job market.
+      </p>
+      <p>
+        Whether you're a recent graduate, career changer, or experienced professional, HireSight provides the tools, 
+        tips, and insights you need to land your dream job faster.
+      </p>
+    </div>
+  </main>
+
+  <!-- AngularJS App & Controller -->
+  <script>
+    angular.module("resumeApp", ['ngAnimate'])
+      .controller("ResumeController", function($scope, $timeout) {
+        $scope.appName = "HireSight";
+        
+        // Initialize with smooth animations
+        $timeout(function() {
+          console.log("HireSight Resume Home loaded successfully!");
+        }, 500);
+      });
+  </script>
+</body>
+</html>

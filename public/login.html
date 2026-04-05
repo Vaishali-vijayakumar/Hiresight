@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="hireSightApp">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | HireSight</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    body {
+      background: #f0f0ff;
+      color: #333;
+    }
+    header {
+      background: #a490f0;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+    }
+    .logo {
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+    .nav a {
+      margin-left: 1.5rem;
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .container {
+      display: flex;
+      justify-content: space-between;
+      padding: 4rem 10%;
+      align-items: center;
+    }
+    .left {
+      flex: 1;
+      padding-right: 4rem;
+    }
+    .left iframe {
+      width: 100%;
+      max-width: 640px;
+      height: 360px;
+      border-radius: 16px;
+      margin-bottom: 1.5rem;
+      border: none;
+    }
+    .left h2 {
+      font-size: 2rem;
+      color: #6f42c1;
+      margin-bottom: 1rem;
+    }
+    .left p {
+      color: #555;
+      font-size: 1rem;
+      max-width: 500px;
+    }
+
+    /* ngAnimate Animation for login box */
+    .right.ng-enter {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    .right.ng-enter-active {
+      opacity: 1;
+      transform: scale(1);
+      transition: all 0.5s ease-in-out;
+    }
+    .right.ng-leave {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .right.ng-leave-active {
+      opacity: 0;
+      transform: scale(0.9);
+      transition: all 0.4s ease-in-out;
+    }
+
+    .right {
+      background: white;
+      padding: 2rem;
+      border-radius: 18px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+      flex: 1;
+      max-width: 400px;
+    }
+    .right h2 {
+      text-align: center;
+      color: #6f42c1;
+      margin-bottom: 1.5rem;
+    }
+    select, input {
+      width: 100%;
+      padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      background-repeat: no-repeat;
+      background-position: 0.75rem center;
+      background-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    
+    select:focus, input:focus {
+      outline: none;
+      border-color: #6f42c1;
+      box-shadow: 0 0 0 2px rgba(111, 66, 193, 0.1);
+    }
+    
+    select {
+      background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik01IDZMMCA4Ljc0MjI4ZS0wOEgxMEw1IDZaIiBmaWxsPSIjNjY2Ii8+Cjwvc3ZnPgo=');
+      padding-right: 2.5rem;
+    }
+    #loginEmail {
+      background-image: url('https://cdn-icons-png.flaticon.com/512/561/561127.png');
+    }
+    #loginPassword {
+      background-image: url('https://cdn-icons-png.flaticon.com/512/3064/3064155.png');
+    }
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background: linear-gradient(to right, #00c3b8, #00a3a0);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 1rem;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: linear-gradient(to right, #00a3a0, #008b8a);
+    }
+    .or {
+      text-align: center;
+      color: #666;
+      margin: 1rem 0;
+    }
+    .socials {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .socials button {
+      flex: 1;
+      padding: 0.5rem;
+      background: #f5f5f5;
+      color: #333;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .socials button:hover:not(:disabled) {
+      background: #e4e4e4;
+    }
+    
+    .socials button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      padding: 2rem;
+      color: #888;
+      border-top: 1px solid #eee;
+      background: #f2f2f2;
+    }
+    @media (max-width: 900px) {
+      .container {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 2rem;
+      }
+      .left, .right {
+        max-width: 100%;
+        padding: 0;
+      }
+      .left {
+        margin-bottom: 2rem;
+      }
+      .left iframe {
+        height: 200px;
+      }
+    }
+    span.error {
+      color: #dc3545;
+      font-size: 0.85rem;
+      display: block;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      border-radius: 4px;
+    }
+    
+    span.success {
+      color: #155724;
+      font-size: 0.85rem;
+      display: block;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 4px;
+    }
+    
+    .form-field.error input,
+    .form-field.error select {
+      border-color: #dc3545;
+      box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1);
+    }
+  </style>
+</head>
+<body ng-controller="LoginController">
+  <header class="header">
+    <div class="logo">HireSight</div>
+    <nav class="nav">
+      <a href="login.html">Home</a>
+      <a href="register.html">Register</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="left">
+      <iframe src="https://www.youtube.com/embed/SvjP8kXWuyY?autoplay=1&mute=1&loop=1&playlist=SvjP8kXWuyY"
+              title="YouTube video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+      </iframe>
+      <h2>Stand Out with a Better Resume</h2>
+      <p>Log in to access your personalized resume dashboard. Build, customize, and download modern resumes that get noticed by hiring managers.</p>
+    </div>
+
+    <!-- ngAnimate-enabled login box -->
+    <div class="right" ng-show="showLoginBox">
+      <h2>Login</h2>
+      <form ng-submit="login()" name="loginForm" novalidate>
+        <select ng-model="user.role" name="role" required>
+          <option value="">Select user type</option>
+          <option value="Admin">Administrator</option>
+          <option value="HR">HR Manager</option>
+          <option value="User">User (Job Seeker)</option>
+        </select>
+        
+        <input type="email" 
+               id="loginEmail" 
+               name="email"
+               placeholder="you@example.com" 
+               ng-model="user.email" 
+               required 
+               autocomplete="email" />
+               
+        <input type="password" 
+               id="loginPassword" 
+               name="password"
+               placeholder="Password" 
+               ng-model="user.password" 
+               required 
+               autocomplete="current-password" 
+               minlength="6" />
+               
+        <span class="error" ng-show="errorMessage">{{ errorMessage }}</span>
+        <span class="success" ng-show="successMessage">{{ successMessage }}</span>
+        <button type="submit" ng-disabled="loginForm.$invalid || isLoading">
+          <span ng-show="!isLoading">Login</span>
+          <span ng-show="isLoading">Logging in...</span>
+        </button>
+      </form>
+      <div class="or">or continue with</div>
+      <div class="socials">
+        <button type="button" disabled title="Coming Soon"><i class="fab fa-google"></i> Google</button>
+        <button type="button" disabled title="Coming Soon"><i class="fab fa-linkedin"></i> LinkedIn</button>
+      </div>
+    </div>
+  </div>
+  <footer>© 2025 HireSight. All rights reserved.</footer>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular-animate.min.js"></script>
+  <script>
+    angular.module('hireSightApp', ['ngAnimate'])
+.controller('LoginController', ['$scope', '$window', 'AuthService', function ($scope, $window, AuthService) {
+  // Initialize scope variables
+  $scope.user = { role: '', email: '', password: '' };
+  $scope.showLoginBox = true;
+  $scope.errorMessage = '';
+  $scope.successMessage = '';
+  $scope.isLoading = false;
+  
+  // Initialize the login box on page load
+  angular.element(document).ready(function () {
+    $scope.showLoginBox = true;
+    $scope.$apply();
+  });
+
+  $scope.login = function () {
+    // Clear previous messages
+    $scope.errorMessage = '';
+    $scope.successMessage = '';
+    
+    // Client-side validation
+    if (!$scope.user.role || !$scope.user.email || !$scope.user.password) {
+      $scope.errorMessage = 'Please fill in all required fields.';
+      return;
+    }
+    
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test($scope.user.email)) {
+      $scope.errorMessage = 'Please enter a valid email address.';
+      return;
+    }
+    
+    $scope.isLoading = true;
+    
+    AuthService.login($scope.user).then(function (res) {
+      $scope.isLoading = false;
+      if (res.success) {
+        $scope.successMessage = `Welcome back, ${res.name}! Redirecting...`;
+        
+        // Redirect based on role
+        setTimeout(function() {
+          if (res.role === 'Admin') {
+            $window.location.href = "adminhome.html";
+          } else if (res.role === 'HR') {
+            $window.location.href = "hrdashboard.html";
+          } else {
+            $window.location.href = "resumehome.html";
+          }
+        }, 1500);
+      } else {
+        $scope.errorMessage = res.message || "Login failed. Please check your credentials.";
+      }
+    }).catch(function(error) {
+      $scope.isLoading = false;
+      console.error('Login error:', error);
+      
+      if (error.data && error.data.message) {
+        $scope.errorMessage = error.data.message;
+      } else if (error.status === 401) {
+        $scope.errorMessage = "Invalid credentials. Please check your email, password, and selected role.";
+      } else if (error.status === 403) {
+        $scope.errorMessage = "Account access denied. Please contact your administrator.";
+      } else if (error.status === 423) {
+        $scope.errorMessage = "Account temporarily locked due to multiple failed attempts. Please try again later.";
+      } else {
+        $scope.errorMessage = "Server error. Please try again later.";
+      }
+    });
+  };
+}])
+.factory('AuthService', ['$http', '$q', function ($http, $q) {
+  return {
+    login: function (user) {
+      // Input validation
+      if (!user.role || !user.email || !user.password) {
+        return $q.reject({ data: { message: 'Please fill in all required fields.' } });
+      }
+      
+      // Use relative URL to work with different environments
+      return $http({
+        method: 'POST',
+        url: '/api/login',
+        data: user,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).then(function(response) {
+        return response.data;
+      }).catch(function(error) {
+        // Enhanced error handling
+        console.error('AuthService login error:', error);
+        console.error('AuthService login error:', error);
+        return $q.reject(error);
+      });
+    }
+  };
+}])
+.filter('capitalize', function () {
+  return function (input) {
+    return (!!input) ? input.charAt(0).toUpperCase() + input.substr(1).toLowerCase() : '';
+  };
+})
+.directive('emailChecker', function () {
+  return {
+    restrict: 'A',
+    require: 'ngModel',
+    link: function (scope, element, attrs, ngModel) {
+      ngModel.$parsers.push(function (value) {
+        const savedUsers = JSON.parse(localStorage.getItem("hiresight_users")) || [];
+        const exists = savedUsers.some(u => u.email.toLowerCase() === value.toLowerCase());
+        ngModel.$setValidity('emailTaken', !exists);
+        return value;
+      });
+    }
+  };
+});
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      console.log("DOM fully loaded and parsed");
+    });
+  </script>
+</body>
+</html>

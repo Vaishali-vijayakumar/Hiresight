@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="applicantApp">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applicant Dashboard | HireSight</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: #f4f6fb;
+            color: #333;
+        }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            width: 260px;
+            background: #ffffff;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            border-right: 1px solid #e1e4ed;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #f0f2f7;
+            color: #a490f0;
+            font-weight: bold;
+            font-size: 1.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-header i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+
+        .nav-links {
+            padding: 2rem 0;
+            flex: 1;
+        }
+
+        .nav-link {
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            color: #667085;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-link i {
+            width: 24px;
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #f8f6ff;
+            color: #a490f0;
+            border-left: 4px solid #a490f0;
+        }
+
+        .user-profile {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #f0f2f7;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #a490f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            color: #ef4444;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .logout-btn:hover {
+            color: #dc2626;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-left: 260px;
+            padding: 2rem 3rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: #111827;
+        }
+
+        .header p {
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+
+        .empty-state {
+            background: white;
+            border-radius: 12px;
+            padding: 4rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            border: 1px solid #e5e7eb;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #d1d5db;
+            margin-bottom: 1rem;
+        }
+
+        /* --- Application Cards --- */
+        .application-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            border: 1px solid #e1e4ed;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .application-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .job-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .company-dept {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        .applied-date {
+            font-size: 0.9rem;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        /* --- Timeline Tracker --- */
+        .timeline-container {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px dashed #e5e7eb;
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50px;
+            right: 50px;
+            height: 3px;
+            background: #e5e7eb;
+            z-index: 1;
+        }
+
+        .timeline-step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            flex: 1;
+        }
+
+        .step-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem auto;
+            color: #9ca3af;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .step-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #6b7280;
+        }
+
+        .step-date {
+            font-size: 0.8rem;
+            color: #9ca3af;
+            margin-top: 0.25rem;
+        }
+
+        /* Active/Completed States */
+        .timeline-step.completed .step-icon {
+            background: #a490f0;
+            border-color: #a490f0;
+            color: white;
+        }
+
+        .timeline-step.completed .step-label {
+            color: #a490f0;
+            font-weight: 600;
+        }
+
+        .timeline-step.active .step-icon {
+            border-color: #a490f0;
+            color: #a490f0;
+            box-shadow: 0 0 0 5px rgba(164, 144, 240, 0.15);
+        }
+
+        .timeline-step.active .step-label {
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .timeline-step.rejected .step-icon {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: white;
+        }
+
+        .timeline-step.rejected .step-label {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 3rem;
+            color: #a490f0;
+            font-size: 2rem;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #a490f0;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body ng-controller="DashboardController">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-eye"></i> HireSight
+        </div>
+        <div class="nav-links">
+            <a href="#" class="nav-link active">
+                <i class="fas fa-clipboard-list"></i> My Applications
+            </a>
+            <a href="resumehome.html" class="nav-link">
+                <i class="fas fa-file-upload"></i> Apply for Job
+            </a>
+        </div>
+        <div class="user-profile">
+            <div class="avatar">{{ user.name.charAt(0) || 'U' }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ user.name || 'Job Seeker' }}</div>
+            </div>
+            <i class="fas fa-sign-out-alt logout-btn" ng-click="logout()" title="Logout"></i>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="header">
+            <div>
+                <h1>Application Status Tracker</h1>
+                <p>Track the real-time progress of your job applications</p>
+            </div>
+        </div>
+
+        <div class="loading-spinner" ng-show="loading">
+            <div class="loader"></div>
+            <p style="font-size: 1rem; color: #666;">Loading applications...</p>
+        </div>
+
+        <div class="empty-state" ng-show="!loading && applications.length === 0">
+            <i class="fas fa-box-open"></i>
+            <h3>No applications found</h3>
+            <p style="color: #666; margin-top: 0.5rem; margin-bottom: 1.5rem;">You haven't submitted any job
+                applications yet.</p>
+            <a href="resumehome.html"
+                style="background:#a490f0; color:white; text-decoration:none; padding: 10px 20px; border-radius: 6px; font-weight: 500;">Browse
+                Jobs</a>
+        </div>
+
+        <div class="applications-list" ng-show="!loading && applications.length > 0">
+
+            <div class="application-card" ng-repeat="app in applications">
+                <div class="card-header">
+                    <div>
+                        <div class="job-title">{{ app.position || 'General Application' }}</div>
+                        <div class="company-dept">{{ app.department || 'General' }} Department</div>
+                    </div>
+                    <div class="applied-date">
+                        <i class="far fa-calendar-alt"></i> Applied: {{ app.dateApplied | date:'mediumDate' }}
+                    </div>
+                </div>
+
+                <div class="timeline-container">
+                    <div class="timeline">
+                        <!-- Step 1: Applied -->
+                        <div class="timeline-step" ng-class="{'completed': getStepIndex(app.status) >= 0}">
+                            <div class="step-icon"><i class="fas fa-paper-plane"></i></div>
+                            <div class="step-label">Applied</div>
+                        </div>
+
+                        <!-- Step 2: Under Review -->
+                        <div class="timeline-step"
+                            ng-class="{'completed': getStepIndex(app.status) > 1, 'active': getStepIndex(app.status) === 1}">
+                            <div class="step-icon"><i class="fas fa-search"></i></div>
+                            <div class="step-label">Under Review</div>
+                        </div>
+
+                        <!-- Step 3: Interview -->
+                        <div class="timeline-step"
+                            ng-class="{'completed': getStepIndex(app.status) > 2, 'active': getStepIndex(app.status) === 2}">
+                            <div class="step-icon"><i class="fas fa-comments"></i></div>
+                            <div class="step-label">Interview</div>
+                            <div class="step-date" ng-show="app.interviewDate">{{ app.interviewDate | date:'shortDate'
+                                }}</div>
+                        </div>
+
+                        <!-- Step 4: Final Stage -->
+                        <div class="timeline-step" ng-class="{
+                                'completed': app.status === 'Selected' || app.status === 'Offer Extended' || app.status === 'Hired',
+                                'rejected': app.status === 'Rejected',
+                                'active': app.status !== 'Rejected' && app.status !== 'Selected' && app.status !== 'Offer Extended' && app.status !== 'Hired' && getStepIndex(app.status) >= 3
+                            }">
+                            <div class="step-icon">
+                                <i class="fas fa-times" ng-show="app.status === 'Rejected'"></i>
+                                <i class="fas fa-check"
+                                    ng-show="app.status === 'Selected' || app.status === 'Offer Extended' || app.status === 'Hired'"></i>
+                                <i class="fas fa-hourglass-half"
+                                    ng-show="app.status !== 'Rejected' && app.status !== 'Selected' && app.status !== 'Offer Extended' && app.status !== 'Hired'"></i>
+                            </div>
+                            <div class="step-label">{{ app.status === 'Rejected' ? 'Not Selected' : (app.status ===
+                                'Selected' || app.status === 'Offer Extended' || app.status === 'Hired' ? app.status :
+                                'Final Decision') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script>
+        angular.module('applicantApp', [])
+            .controller('DashboardController', ['$scope', '$http', '$window', function ($scope, $http, $window) {
+
+                $scope.applications = [];
+                $scope.user = {};
+                $scope.loading = true;
+
+                // Simple status mapping
+                const stages = {
+                    'Applied': 0,
+                    'Under Review': 1,
+                    'Interview Scheduled': 2,
+                    'Selected': 3,
+                    'Offer Extended': 3,
+                    'Hired': 3,
+                    'Rejected': -1
+                };
+
+                $scope.getStepIndex = function (status) {
+                    return stages[status] !== undefined ? stages[status] : 0;
+                };
+
+                $scope.init = function () {
+                    var userData = localStorage.getItem('user');
+                    if (!userData) {
+                        // MOCK FOR TESTING, IF NO USER
+                        $scope.user = { name: 'Test Setup User', email: 'test@hiresight.com', role: 'User' };
+                    } else {
+                        $scope.user = JSON.parse(userData);
+                    }
+
+                    $scope.fetchApplications();
+                };
+
+                $scope.fetchApplications = function () {
+                    if (!$scope.user.email) return;
+
+                    $http.get('http://localhost:3000/api/applicant/applications?email=' + encodeURIComponent($scope.user.email))
+                        .then(function (response) {
+                            $scope.applications = response.data;
+                            $scope.loading = false;
+                        })
+                        .catch(function (err) {
+                            console.error("Error fetching applications:", err);
+                            $scope.loading = false;
+                            // Mock data if backend fails
+                            $scope.applications = [
+                                { position: 'Software Engineer', department: 'Technology', dateApplied: new Date(), status: 'Applied' },
+                                { position: 'Frontend Developer', department: 'Design', dateApplied: new Date(Date.now() - 86400000 * 5), status: 'Interview Scheduled', interviewDate: new Date(Date.now() + 86400000 * 2) },
+                                { position: 'Data Analyst', department: 'Analytics', dateApplied: new Date(Date.now() - 86400000 * 20), status: 'Rejected' }
+                            ];
+                        });
+                };
+
+                $scope.logout = function () {
+                    localStorage.removeItem('user');
+                    $window.location.href = 'login.html';
+                };
+
+                $scope.init();
+            }]);
+    </script>
+</body>
+
+</html>

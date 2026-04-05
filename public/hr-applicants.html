@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="hireSightApp">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HireSight - HR Applicant Management</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-animate.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f0ff;
+      color: #333;
+    }
+
+    header {
+      background: #a490f0;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+    }
+
+    .logo {
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+
+    .nav a {
+      margin-left: 1.5rem;
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .dashboard {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .card {
+      background: white;
+      padding: 0.6rem 0.8rem;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h4 {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    .card p {
+      margin: 0.3rem 0 0;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .card.applied {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+    }
+
+    .card.rejected {
+      background: #ffebee;
+      border-left: 4px solid #f44336;
+    }
+
+    .card.selected {
+      background: #e8f5e9;
+      border-left: 4px solid #4caf50;
+    }
+
+    .card.pending {
+      background: #fff8e1;
+      border-left: 4px solid #ff9800;
+    }
+
+    .card.ongoing {
+      background: #ede7f6;
+      border-left: 4px solid #673ab7;
+    }
+
+    .card.completed {
+      background: #eceff1;
+      border-left: 4px solid #607d8b;
+    }
+
+    .bottom {
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .card.table-card {
+      padding: 0.8rem;
+      font-size: 0.85rem;
+    }
+
+    .card.table-card table th,
+    .card.table-card table td {
+      padding: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .card.quick-actions {
+      padding: 0.8rem;
+      font-size: 0.9rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th,
+    td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #a490f0;
+      color: white;
+    }
+
+    .status-box {
+      display: inline-block;
+      padding: 0.3rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      color: white;
+      font-weight: 500;
+    }
+
+    .status-selected {
+      background-color: #4caf50;
+    }
+
+    .status-rejected {
+      background-color: #f44336;
+    }
+
+    .status-pending {
+      background-color: #ff9800;
+      color: black;
+    }
+
+    .status-applied {
+      background-color: #2196f3;
+    }
+
+    .status-under-review {
+      background-color: #ff5722;
+    }
+
+    .status-interview-scheduled {
+      background-color: #9c27b0;
+    }
+
+    .status-offer-extended {
+      background-color: #00bcd4;
+    }
+
+    .status-hired {
+      background-color: #4caf50;
+    }
+
+    .quick-actions ul {
+      padding-left: 0;
+      list-style: none;
+    }
+
+    .quick-actions li {
+      background: #e9edfb;
+      padding: 0.5rem;
+      border-radius: 5px;
+      text-align: center;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .quick-actions li:hover {
+      background: #dbe2f8;
+    }
+
+    .btn {
+      background-color: #e9edfb;
+      color: #333;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      transition: background-color 0.2s ease;
+      margin-right: 0.5rem;
+    }
+
+    .btn:hover {
+      background-color: #dbe2f8;
+    }
+
+    .btn-primary {
+      background-color: #a490f0;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #8f7ce0;
+    }
+
+    .charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .charts {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-card {
+        height: 250px;
+      }
+    }
+
+    .chart-card {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      height: 280px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-card h4 {
+      margin: 0 0 0.5rem 0;
+      flex-shrink: 0;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .chart-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .status-btn {
+      font-size: 0.8rem;
+      padding: 0.35rem 0.6rem;
+      margin: 0;
+      border: 1px solid transparent;
+      background-color: #f8f9fa;
+      color: #444;
+      transition: all 0.2s ease;
+      border-radius: 4px;
+    }
+
+    .status-btn:hover {
+      filter: brightness(0.95);
+    }
+
+    .status-btn.btn-active {
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05) inset;
+    }
+
+    /* Color-coded action buttons */
+    .status-btn.btn-review {
+      background-color: #f59e0b;
+      color: #fff;
+      border-color: #d97706;
+    }
+
+    .status-btn.btn-review:hover {
+      background-color: #d97706;
+    }
+
+    .status-btn.btn-interview {
+      background-color: #9333ea;
+      color: #fff;
+      border-color: #7e22ce;
+    }
+
+    .status-btn.btn-interview:hover {
+      background-color: #7e22ce;
+    }
+
+    .status-btn.btn-select {
+      background-color: #22c55e;
+      color: #fff;
+      border-color: #16a34a;
+    }
+
+    .status-btn.btn-select:hover {
+      background-color: #16a34a;
+    }
+
+    .status-btn.btn-hire {
+      background-color: #06b6d4;
+      color: #fff;
+      border-color: #0891b2;
+    }
+
+    .status-btn.btn-hire:hover {
+      background-color: #0891b2;
+    }
+
+    .status-btn.btn-reject {
+      background-color: #ef4444;
+      color: #fff;
+      border-color: #dc2626;
+    }
+
+    .status-btn.btn-reject:hover {
+      background-color: #dc2626;
+    }
+
+    .button-container {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 0.35rem;
+      align-items: center;
+      white-space: nowrap;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      /* show thin scrollbar if needed */
+    }
+
+    table th:last-child,
+    table td:last-child {
+      width: 520px;
+      min-width: 520px;
+    }
+
+    @media (max-width: 768px) {
+      .status-btn {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.45rem;
+      }
+
+      table th:last-child,
+      table td:last-child {
+        width: 420px;
+        min-width: 420px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .status-btn {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.35rem;
+      }
+
+      table th:last-child,
+      table td:last-child {
+        width: 360px;
+        min-width: 360px;
+      }
+    }
+
+    /* Detail modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 1000;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-card {
+      background: #fff;
+      width: 90%;
+      max-width: 800px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: #a490f0;
+      color: #fff;
+    }
+
+    .modal-body {
+      padding: 1rem;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 0.75rem 1rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      background: #f8f9fb;
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem 1rem;
+    }
+
+    .detail-item {
+      background: #f7f7ff;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .detail-item strong {
+      display: block;
+      font-size: 0.8rem;
+      color: #555;
+    }
+
+    .link-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .link-row a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .link-row a:hover {
+      text-decoration: underline;
+    }
+
+    .link-row a:hover {
+      text-decoration: underline;
+    }
+
+    /* Kanban Board Styles */
+    .kanban-board {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+      min-height: 500px;
+    }
+
+    .kanban-column {
+      flex: 1;
+      min-width: 250px;
+      background: #f4f6fb;
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .kanban-header {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e1e4ed;
+    }
+
+    .kanban-count {
+      background: #a490f0;
+      color: white;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .kanban-cards {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      min-height: 50px;
+      /* target area for empty boards */
+    }
+
+    .k-card {
+      background: white;
+      border-radius: 6px;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e1e4ed;
+      cursor: grab;
+      position: relative;
+    }
+
+    .k-card:active {
+      cursor: grabbing;
+    }
+
+    .k-card-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #111827;
+    }
+
+    .k-card-subtitle {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+
+    .k-card-meta {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .k-card.drag-over {
+      border: 2px dashed #a490f0;
+      background: #f8f6ff;
+    }
+  </style>
+</head>
+
+<body ng-controller="HRApplicantsController as ctrl">
+  <header class="header">
+    <div class="logo">HireSight</div>
+    <nav class="nav">
+      <a href="hrdashboard.html">HR Dashboard</a>
+      <a href="login.html">Logout</a>
+    </nav>
+  </header>
+  <main class="dashboard">
+    <!-- Applicant Statistics -->
+    <div class="stats fade">
+      <div class="card applied">
+        <h4>Total Applicants</h4>
+        <p>{{ctrl.totalCount || 0}}</p>
+      </div>
+      <div class="card pending">
+        <h4>Under Review</h4>
+        <p>{{ctrl.reviewCount || 0}}</p>
+      </div>
+      <div class="card ongoing">
+        <h4>Interview Scheduled</h4>
+        <p>{{ctrl.interviewCount || 0}}</p>
+      </div>
+      <div class="card selected">
+        <h4>Selected</h4>
+        <p>{{ctrl.selectedCount || 0}}</p>
+      </div>
+      <div class="card completed">
+        <h4>Hired</h4>
+        <p>{{ctrl.hiredCount || 0}}</p>
+      </div>
+      <div class="card rejected">
+        <h4>Rejected</h4>
+        <p>{{ctrl.rejectedCount || 0}}</p>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts">
+      <div class="chart-card">
+        <h4>Application Status Distribution</h4>
+        <div class="chart-container">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h4>Applications by Department</h4>
+        <div class="chart-container">
+          <canvas id="departmentChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom" style="grid-template-columns: 1fr;">
+      <div class="card table-card" style="overflow-x: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h4>Applicant Pipeline (Kanban)</h4>
+          <div>
+            <button class="btn btn-primary" ng-click="ctrl.loadApplicants()">🔄 Refresh</button>
+          </div>
+        </div>
+
+        <div ng-show="ctrl.loading" style="text-align: center; padding: 2rem; color: #666;">
+          <div style="font-size: 2rem; margin-bottom: 10px;">⏳</div>
+          <div>Loading applicants...</div>
+        </div>
+
+        <div ng-show="ctrl.error" style="text-align: center; padding: 2rem; color: #f44336;">
+          <div style="font-size: 2rem; margin-bottom: 10px;">❌</div>
+          <div>Error loading applicants: {{ctrl.error}}</div>
+          <button class="btn btn-primary" ng-click="ctrl.loadApplicants()" style="margin-top: 1rem;">🔄 Try
+            Again</button>
+        </div>
+
+        <!-- Kanban Board -->
+        <div class="kanban-board" ng-show="!ctrl.loading && !ctrl.error">
+
+          <div class="kanban-column" ng-repeat="col in ctrl.kanbanColumns" ng-drop="true"
+            ng-drop-success="ctrl.onDropComplete($data, $event, col.status)">
+            <div class="kanban-header" ng-style="{'border-bottom-color': col.color}">
+              {{col.title}}
+              <span class="kanban-count" ng-style="{'background-color': col.color}">{{ (ctrl.applicants |
+                filter:{status: col.status}).length }}</span>
+            </div>
+            <div class="kanban-cards">
+              <div class="k-card" ng-repeat="app in ctrl.applicants | filter:{status: col.status}" ng-drag="true"
+                ng-drag-data="app" ng-drag-success="ctrl.onDragSuccess($data, $event)">
+                <div class="k-card-title">{{app.name}}</div>
+                <div class="k-card-subtitle">{{app.position}}</div>
+                <div class="k-card-subtitle" style="font-size: 0.7rem;">{{app.email}}</div>
+                <div class="k-card-meta">
+                  <span><i class="far fa-calendar-alt"></i> {{app.dateApplied | date:'MMM dd'}}</span>
+                  <span ng-click="ctrl.viewApplicant(app)"
+                    style="color: #a490f0; cursor: pointer; font-weight: 500;">View</span>
+                </div>
+              </div>
+              <div ng-if="(ctrl.applicants | filter:{status: col.status}).length === 0"
+                style="text-align:center; padding: 1rem; font-size: 0.8rem; color:#9ca3af; border: 1px dashed #d1d5db; border-radius: 6px;">
+                Drop here
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div ng-show="!ctrl.loading && !ctrl.error && ctrl.applicants.length === 0"
+          style="text-align: center; padding: 2rem; color: #666;">
+          <div style="font-size: 2rem; margin-bottom: 10px;">📋</div>
+          <div>No applicants found.</div>
+          <div style="margin-top: 1rem; font-size: 0.9rem; color: #888;">Applicants transferred from admin will appear
+            here.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" ng-class="{show: ctrl.showDetail}">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>Applicant Details</div>
+        <button class="close-btn" ng-click="ctrl.closeDetail()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-item" ng-repeat="row in ctrl.detailList">
+            <strong>{{row.label}}</strong>
+            <div ng-if="!row.isLink">{{row.value}}</div>
+            <div ng-if="row.isLink">
+              <a ng-href="{{row.value}}" target="_blank" rel="noopener">{{row.value}}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" ng-click="ctrl.closeDetail()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ng-draggabilly/0.1.0/ng-draggabilly.min.js"></script>
+  <script src="https://rawgithub.com/fatlinesofcode/ngDraggable/master/ngDraggable.js"></script>
+  <script>
+    angular.module('hireSightApp', ['ngAnimate', 'ngDraggable'])
+      .controller('HRApplicantsController', ['$http', '$log', '$timeout', function ($http, $log, $timeout) {
+        var ctrl = this;
+
+        // Initialize properties
+        ctrl.applicants = [];
+        ctrl.totalCount = 0;
+        ctrl.reviewCount = 0;
+        ctrl.interviewCount = 0;
+        ctrl.selectedCount = 0;
+        ctrl.hiredCount = 0;
+        ctrl.rejectedCount = 0;
+        ctrl.loading = false;
+        ctrl.error = null;
+
+
+        // Kanban Column Setup
+        ctrl.kanbanColumns = [
+          { title: 'Applied', status: 'Applied', color: '#6b7280' },
+          { title: 'Reviewing', status: 'Under Review', color: '#f59e0b' },
+          { title: 'Interviewing', status: 'Interview Scheduled', color: '#9333ea' },
+          { title: 'Selected', status: 'Selected', color: '#22c55e' },
+          { title: 'Hired', status: 'Hired', color: '#06b6d4' },
+          { title: 'Rejected', status: 'Rejected', color: '#ef4444' }
+        ];
+
+        // Drag and Drop Handlers
+        ctrl.onDropComplete = function (data, evt, newStatus) {
+          if (data && data.status !== newStatus) {
+            ctrl.changeStatus(data, newStatus);
+          }
+        };
+
+        ctrl.onDragSuccess = function (data, evt) {
+          // Fired when an item is successfully dropped
+        };
+
+        // Demo data with realistic applicants including Priya Sharma
+        ctrl.demoApplicants = [
+          {
+            _id: '1',
+            name: 'Priya Sharma',
+            position: 'Software Engineer',
+            department: 'Engineering',
+            status: 'Under Review',
+            email: 'priya.sharma@email.com',
+            dateApplied: new Date('2024-03-15'),
+            phone: '+91-9876543210',
+            experience: '3 years'
+          },
+          {
+            _id: '2',
+            name: 'John Doe',
+            position: 'Product Manager',
+            department: 'Product',
+            status: 'Interview Scheduled',
+            email: 'john.doe@email.com',
+            dateApplied: new Date('2024-03-10'),
+            phone: '+91-9876543211',
+            experience: '5 years'
+          },
+          {
+            _id: '3',
+            name: 'Sarah Wilson',
+            position: 'UX Designer',
+            department: 'Design',
+            status: 'Selected',
+            email: 'sarah.wilson@email.com',
+            dateApplied: new Date('2024-03-12'),
+            phone: '+91-9876543212',
+            experience: '4 years'
+          },
+          {
+            _id: '4',
+            name: 'Mike Johnson',
+            position: 'Data Scientist',
+            department: 'Engineering',
+            status: 'Hired',
+            email: 'mike.johnson@email.com',
+            dateApplied: new Date('2024-03-08'),
+            phone: '+91-9876543213',
+            experience: '6 years'
+          },
+          {
+            _id: '5',
+            name: 'Lisa Chen',
+            position: 'Marketing Manager',
+            department: 'Marketing',
+            status: 'Rejected',
+            email: 'lisa.chen@email.com',
+            dateApplied: new Date('2024-03-05'),
+            phone: '+91-9876543214',
+            experience: '4 years'
+          }
+        ];
+
+        // Load applicants
+        ctrl.loadApplicants = function () {
+          console.log('Loading applicants from API...');
+          ctrl.loading = true;
+          ctrl.error = null;
+
+          // Try to load from API first
+          $http.get('http://localhost:3000/api/applicants')
+            .then(function (response) {
+              console.log('API Response received:', response.data);
+
+              var rawData = response.data.applicants || response.data || [];
+              console.log('Raw applicant data:', rawData);
+
+              if (Array.isArray(rawData) && rawData.length > 0) {
+                ctrl.applicants = rawData.map(function (applicant) {
+                  var mapped = Object.assign({}, applicant);
+                  mapped._id = applicant._id || applicant.applicantId || applicant.id || (Date.now().toString() + Math.random());
+                  mapped.name = applicant.name || applicant.fullName || 'Unknown';
+                  mapped.position = applicant.position || applicant.jobTitle || applicant.role || 'Not specified';
+                  mapped.department = applicant.department || applicant.dept || 'Not specified';
+                  mapped.status = applicant.status || applicant.applicationStatus || 'Applied';
+                  mapped.email = applicant.email || applicant.emailAddress || '';
+                  mapped.phone = applicant.phone || applicant.phoneNumber || '';
+                  mapped.dateApplied = new Date(applicant.dateApplied || applicant.applicationDate || applicant.createdAt || applicant.lastUpdated || Date.now());
+                  mapped.experience = applicant.experience || applicant.yearsOfExperience || applicant.experienceLevel || 'N/A';
+                  mapped.skills = applicant.skills || [];
+                  mapped.sentToHR = applicant.sentToHR || false;
+                  // Extended fields from CSV processing
+                  mapped.linkedinProfile = applicant.linkedinProfile || applicant['LinkedIn Profile'] || applicant.linkedin || '';
+                  mapped.resumeUrl = applicant.resumeUrl || applicant.resume || applicant['Resume'] || '';
+                  mapped.currentPosition = applicant.currentPosition || applicant['Current Position'] || '';
+                  mapped.currentCompany = applicant.currentCompany || applicant['Current Company'] || '';
+                  mapped.totalExperience = applicant['Total Experience'] || applicant.totalExperience || mapped.experience || '';
+                  mapped.expectedSalary = applicant.expectedSalary || applicant['Expected Salary'] || '';
+                  mapped.workAuthorization = applicant.workAuthorization || applicant['Work Authorization'] || '';
+                  mapped.willingToRelocate = (typeof applicant.willingToRelocate === 'boolean') ? applicant.willingToRelocate : ('' + (applicant['Willing to Relocate'] || '')).toLowerCase();
+                  mapped.availableStartDate = applicant.availableStartDate || applicant['Available Start Date'] || '';
+                  mapped.applicationDate = applicant.applicationDate || applicant['Application Date'] || applicant.dateApplied || '';
+                  mapped.keyAchievements = applicant.keyAchievements || applicant['Key Achievements'] || '';
+                  mapped.coverLetterSummary = applicant.coverLetterSummary || applicant['Cover Letter Summary'] || '';
+                  mapped.languageSkills = applicant.languageSkills || applicant['Language Skills'] || '';
+                  mapped.certifications = applicant.certifications || applicant.Certifications || '';
+                  mapped.industryExperience = applicant.industryExperience || applicant['Industry Experience'] || '';
+                  mapped.managementExperience = applicant.managementExperience || applicant['Management Experience'] || '';
+                  mapped.technicalProficiency = applicant.technicalProficiency || applicant['Technical Proficiency'] || '';
+                  mapped.softSkills = applicant.softSkills || applicant['Soft Skills'] || '';
+                  mapped.referencesAvailable = (typeof applicant.referencesAvailable === 'boolean') ? applicant.referencesAvailable : ('' + (applicant['References Available'] || '')).toLowerCase();
+                  mapped.noticePeriod = applicant.noticePeriod || applicant['Notice Period'] || '';
+                  mapped.reasonForJobChange = applicant.reasonForJobChange || applicant['Reason for Job Change'] || '';
+                  mapped.qualification = applicant.qualification || applicant.Education || applicant.education || '';
+                  mapped.location = applicant.location || applicant.Location || '';
+                  return mapped;
+                });
+
+                console.log('Processed applicants:', ctrl.applicants);
+                ctrl.updateStatistics();
+                ctrl.loading = false;
+
+                // Render charts after data is loaded
+                $timeout(function () {
+                  ctrl.renderCharts();
+                }, 200);
+              } else {
+                console.log('No data from API, using fallback demo data');
+                ctrl.loadDemoData();
+              }
+            })
+            .catch(function (error) {
+              console.error('Failed to load applicants from API:', error);
+              console.log('API failed, using fallback demo data');
+              ctrl.loadDemoData();
+            });
+        };
+
+        // Fallback demo data loading
+        ctrl.loadDemoData = function () {
+          console.log('Loading demo data as fallback...');
+          ctrl.applicants = angular.copy(ctrl.demoApplicants);
+          ctrl.updateStatistics();
+          ctrl.loading = false;
+
+          // Render charts after data is loaded
+          $timeout(function () {
+            ctrl.renderCharts();
+          }, 200);
+        };
+
+        // Update statistics
+        ctrl.updateStatistics = function () {
+          ctrl.totalCount = ctrl.applicants.length;
+          ctrl.reviewCount = ctrl.applicants.filter(function (a) {
+            return a.status === 'Applied' || a.status === 'Under Review';
+          }).length;
+          ctrl.interviewCount = ctrl.applicants.filter(function (a) {
+            return a.status === 'Interview Scheduled';
+          }).length;
+          ctrl.selectedCount = ctrl.applicants.filter(function (a) {
+            return a.status === 'Selected';
+          }).length;
+          ctrl.hiredCount = ctrl.applicants.filter(function (a) {
+            return a.status === 'Hired';
+          }).length;
+          ctrl.rejectedCount = ctrl.applicants.filter(function (a) {
+            return a.status === 'Rejected';
+          }).length;
+        };
+
+        // Status functions
+        ctrl.getStatusClass = function (status) {
+          return 'status-' + status.toLowerCase().replace(' ', '-').replace(/[^a-z-]/g, '');
+        };
+
+        // View applicant details (modal)
+        ctrl.showDetail = false;
+        ctrl.detail = {};
+        ctrl.detailList = [];
+
+        ctrl.viewApplicant = function (applicant) {
+          if (!applicant) return;
+          // Always fetch fresh details from DB (contains full set of fields)
+          $http.get('http://localhost:3000/api/applicants/' + applicant._id)
+            .then(function (res) {
+              ctrl.detail = Object.assign({}, res.data);
+              buildDetailList();
+              ctrl.showDetail = true;
+            })
+            .catch(function () {
+              // Fallback to the item we have
+              ctrl.detail = Object.assign({}, applicant);
+              buildDetailList();
+              ctrl.showDetail = true;
+            });
+        };
+
+        function buildDetailList() {
+          // Normalize links
+          function normalizeUrl(u) { if (!u) return ''; if (/^https?:\/\//i.test(u)) return u; return 'http://' + u; }
+          if (ctrl.detail.linkedinProfile) ctrl.detail.linkedinProfile = normalizeUrl(ctrl.detail.linkedinProfile);
+          if (ctrl.detail.resumeUrl) ctrl.detail.resumeUrl = normalizeUrl(ctrl.detail.resumeUrl);
+
+          // Build a readable list of key details
+          var toText = function (v) {
+            if (Array.isArray(v)) return v.join(', ');
+            if (v === null || v === undefined) return '';
+            if (Object.prototype.toString.call(v) === '[object Date]' || v instanceof Date) return new Date(v).toLocaleDateString();
+            return v;
+          };
+          ctrl.detailList = [
+            { label: 'Name', value: toText(ctrl.detail.name) },
+            { label: 'Email', value: toText(ctrl.detail.email) },
+            { label: 'Phone', value: toText(ctrl.detail.phone) },
+            ctrl.detail.linkedinProfile ? { label: 'LinkedIn Profile', value: ctrl.detail.linkedinProfile, isLink: true } : null,
+            { label: 'Current Position', value: toText(ctrl.detail.currentPosition) },
+            { label: 'Current Company', value: toText(ctrl.detail.currentCompany) },
+            { label: 'Total Experience', value: toText(ctrl.detail.totalExperience || ctrl.detail.experience) },
+            { label: 'Expected Salary', value: toText(ctrl.detail.expectedSalary) },
+            { label: 'Location', value: toText(ctrl.detail.location) },
+            { label: 'Education', value: toText(ctrl.detail.qualification) },
+            { label: 'Skills', value: toText(ctrl.detail.skills) },
+            { label: 'Work Authorization', value: toText(ctrl.detail.workAuthorization) },
+            { label: 'Willing to Relocate', value: ('' + ctrl.detail.willingToRelocate).replace('true', 'Yes').replace('false', 'No') },
+            { label: 'Available Start Date', value: ctrl.detail.availableStartDate ? new Date(ctrl.detail.availableStartDate).toLocaleDateString() : '' },
+            { label: 'Application Date', value: ctrl.detail.applicationDate ? new Date(ctrl.detail.applicationDate).toLocaleDateString() : (ctrl.detail.dateApplied ? new Date(ctrl.detail.dateApplied).toLocaleDateString() : '') },
+            { label: 'Key Achievements', value: toText(ctrl.detail.keyAchievements) },
+            { label: 'Cover Letter Summary', value: toText(ctrl.detail.coverLetterSummary) },
+            { label: 'Language Skills', value: toText(ctrl.detail.languageSkills) },
+            { label: 'Certifications', value: toText(ctrl.detail.certifications) },
+            { label: 'Industry Experience', value: toText(ctrl.detail.industryExperience) },
+            { label: 'Management Experience', value: toText(ctrl.detail.managementExperience) },
+            { label: 'Technical Proficiency', value: toText(ctrl.detail.technicalProficiency) },
+            { label: 'Soft Skills', value: toText(ctrl.detail.softSkills) },
+            { label: 'References Available', value: ('' + ctrl.detail.referencesAvailable).replace('true', 'Yes').replace('false', 'No') },
+            { label: 'Notice Period', value: toText(ctrl.detail.noticePeriod) },
+            { label: 'Reason for Job Change', value: toText(ctrl.detail.reasonForJobChange) },
+            { label: 'Status', value: toText(ctrl.detail.status) },
+            { label: 'Department', value: toText(ctrl.detail.department) },
+            { label: 'Assigned To', value: toText(ctrl.detail.assignedTo) },
+            ctrl.detail.resumeUrl ? { label: 'Resume', value: ctrl.detail.resumeUrl, isLink: true } : null
+          ].filter(Boolean);
+        }
+
+        ctrl.closeDetail = function () { ctrl.showDetail = false; };
+
+        // Change applicant status
+        ctrl.changeStatus = function (applicant, newStatus) {
+          console.log('changeStatus called:', applicant?.name, 'from', applicant?.status, 'to', newStatus);
+
+          if (!applicant || !newStatus) {
+            console.error('Invalid parameters for changeStatus:', applicant, newStatus);
+            return;
+          }
+
+          if (applicant.status === newStatus) {
+            console.log('Status already set to', newStatus);
+            return;
+          }
+
+          var confirmMessage = 'Change ' + applicant.name + '\'s status to "' + newStatus + '"?';
+
+          if (newStatus === 'Rejected') {
+            confirmMessage = 'Are you sure you want to REJECT ' + applicant.name + '?\nThis action should be carefully considered.';
+          } else if (newStatus === 'Hired') {
+            confirmMessage = 'Congratulations! Mark ' + applicant.name + ' as HIRED?';
+          }
+
+          if (confirm(confirmMessage)) {
+            var oldStatus = applicant.status;
+            // Optimistic update in UI
+            applicant.status = newStatus;
+            ctrl.updateStatistics();
+            $timeout(function () { ctrl.renderCharts(); }, 100);
+
+            // Persist to backend
+            $http.patch('http://localhost:3000/api/applicants/' + applicant._id + '/status', { status: newStatus })
+              .then(function (res) {
+                console.log('✅ Status updated in DB for', applicant.name, '->', newStatus);
+              })
+              .catch(function (err) {
+                console.error('❌ Failed updating status in DB:', err);
+                // Revert UI on failure
+                applicant.status = oldStatus;
+                ctrl.updateStatistics();
+                $timeout(function () { ctrl.renderCharts(); }, 100);
+                alert('Failed to update status in database. Please try again.');
+              });
+          }
+        };
+
+        // Quick actions
+        ctrl.refreshData = function () {
+          $log.info('Refreshing applicant data...');
+          // Force reload from API
+          ctrl.loadApplicants();
+        };
+
+        ctrl.scheduleInterviews = function () {
+          var readyForInterview = ctrl.applicants.filter(function (a) {
+            return a.status === 'Under Review';
+          });
+          var alreadyScheduled = ctrl.applicants.filter(function (a) {
+            return a.status === 'Interview Scheduled';
+          });
+
+          var message = 'Interview Scheduling Summary:\n\n' +
+            'Ready to schedule: ' + readyForInterview.length + ' candidates\n' +
+            'Already scheduled: ' + alreadyScheduled.length + ' interviews\n' +
+            'Total interview pipeline: ' + (readyForInterview.length + alreadyScheduled.length) + '\n\n';
+
+          if (readyForInterview.length > 0) {
+            message += 'Candidates ready for scheduling:\n';
+            readyForInterview.forEach(function (applicant) {
+              message += '• ' + applicant.name + ' (' + applicant.position + ')\n';
+            });
+          }
+
+          alert(message);
+        };
+
+        ctrl.generateReport = function () {
+          var report = 'HR Applicant Report\n' +
+            '========================\n' +
+            'Total Applicants: ' + ctrl.totalCount + '\n' +
+            'Under Review: ' + ctrl.reviewCount + '\n' +
+            'Interview Scheduled: ' + ctrl.interviewCount + '\n' +
+            'Selected: ' + ctrl.selectedCount + '\n' +
+            'Hired: ' + ctrl.hiredCount + '\n' +
+            'Rejected: ' + ctrl.rejectedCount + '\n\n' +
+            'Success Rate: ' + Math.round((ctrl.hiredCount / Math.max(ctrl.totalCount, 1)) * 100) + '%';
+          alert(report);
+        };
+
+        ctrl.exportData = function () {
+          if (ctrl.applicants.length === 0) {
+            alert('No applicant data to export.');
+            return;
+          }
+
+          var csvContent = 'Name,Email,Position,Department,Status,Applied Date,Experience\n';
+          ctrl.applicants.forEach(function (applicant) {
+            csvContent += applicant.name + ',' +
+              applicant.email + ',' +
+              applicant.position + ',' +
+              applicant.department + ',' +
+              applicant.status + ',' +
+              new Date(applicant.dateApplied).toLocaleDateString() + ',' +
+              (applicant.experience || 'N/A') + '\n';
+          });
+
+          alert('Export ready! (' + ctrl.applicants.length + ' records)\n\nCSV Preview:\n' + csvContent.split('\n').slice(0, 4).join('\n') + '\n...');
+        };
+
+        ctrl.viewPendingReviews = function () {
+          var pending = ctrl.applicants.filter(function (a) {
+            return a.status === 'Applied' || a.status === 'Under Review';
+          });
+
+          if (pending.length === 0) {
+            alert('Great! No pending reviews at the moment.');
+            return;
+          }
+
+          var message = 'Pending Reviews (' + pending.length + ')\n\n';
+          pending.forEach(function (applicant, index) {
+            if (index < 5) { // Show first 5
+              message += (index + 1) + '. ' + applicant.name + ' - ' + applicant.position + ' (' + applicant.status + ')\n';
+            }
+          });
+
+          if (pending.length > 5) {
+            message += '... and ' + (pending.length - 5) + ' more';
+          }
+
+          alert(message);
+        };
+
+        // Chart rendering functions
+        ctrl.renderCharts = function () {
+          try {
+            ctrl.renderStatusChart();
+            ctrl.renderDepartmentChart();
+          } catch (error) {
+            console.error('Error rendering charts:', error);
+          }
+        };
+
+        // Render status distribution chart
+        ctrl.renderStatusChart = function () {
+          var canvas = document.getElementById('statusChart');
+          if (!canvas) return;
+
+          var ctx = canvas.getContext('2d');
+
+          if (ctrl.statusChart) {
+            ctrl.statusChart.destroy();
+          }
+
+          var statusCounts = {
+            'Applied': 0,
+            'Under Review': 0,
+            'Interview Scheduled': 0,
+            'Selected': 0,
+            'Hired': 0,
+            'Rejected': 0
+          };
+
+          ctrl.applicants.forEach(function (applicant) {
+            if (statusCounts.hasOwnProperty(applicant.status)) {
+              statusCounts[applicant.status]++;
+            }
+          });
+
+          var labels = Object.keys(statusCounts);
+          var data = Object.values(statusCounts);
+          var colors = [
+            '#2196f3', // Applied - Blue
+            '#ff9800', // Under Review - Orange 
+            '#9c27b0', // Interview Scheduled - Purple
+            '#4caf50', // Selected - Green
+            '#00bcd4', // Hired - Cyan
+            '#f44336'  // Rejected - Red
+          ];
+
+          ctrl.statusChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: labels,
+              datasets: [{
+                data: data,
+                backgroundColor: colors,
+                borderWidth: 2,
+                borderColor: '#ffffff'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: 'bottom',
+                  labels: {
+                    font: {
+                      size: 11
+                    },
+                    boxWidth: 12,
+                    padding: 10
+                  }
+                }
+              }
+            }
+          });
+        };
+
+        // Render department distribution chart  
+        ctrl.renderDepartmentChart = function () {
+          var canvas = document.getElementById('departmentChart');
+          if (!canvas) return;
+
+          var ctx = canvas.getContext('2d');
+
+          if (ctrl.departmentChart) {
+            ctrl.departmentChart.destroy();
+          }
+
+          var deptCounts = {};
+          ctrl.applicants.forEach(function (applicant) {
+            var dept = applicant.department || 'Other';
+            deptCounts[dept] = (deptCounts[dept] || 0) + 1;
+          });
+
+          var labels = Object.keys(deptCounts);
+          var data = Object.values(deptCounts);
+
+          // Generate colors for departments
+          var colors = [
+            '#a490f0', // Purple (primary)
+            '#4caf50', // Green
+            '#2196f3', // Blue
+            '#ff9800', // Orange
+            '#f44336', // Red
+            '#9c27b0', // Dark Purple
+            '#00bcd4', // Cyan
+            '#795548', // Brown
+            '#607d8b', // Blue Grey
+            '#e91e63'  // Pink
+          ];
+
+          ctrl.departmentChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: 'Number of Applicants',
+                data: data,
+                backgroundColor: colors.slice(0, labels.length),
+                borderColor: colors.slice(0, labels.length).map(color => color.replace('f0', 'e0')),
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: false
+                }
+              },
+              scales: {
+                x: {
+                  ticks: {
+                    font: {
+                      size: 10
+                    }
+                  }
+                },
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    stepSize: 1,
+                    font: {
+                      size: 10
+                    }
+                  }
+                }
+              }
+            }
+          });
+        };
+
+        // Make controller globally accessible for onclick handlers
+        window.hrController = ctrl;
+
+        // Initialize
+        console.log('HRApplicantsController initialized');
+        ctrl.loadApplicants();
+      }]);
+
+    // Global functions for onclick handlers
+    function viewApplicant(applicantId) {
+      console.log('Global viewApplicant called with ID:', applicantId);
+      if (!window.hrController) {
+        console.error('HR Controller not available');
+        alert('Error: Controller not initialized');
+        return;
+      }
+
+      var applicant = window.hrController.applicants.find(function (a) {
+        return a._id === applicantId;
+      });
+
+      if (applicant) {
+        window.hrController.viewApplicant(applicant);
+      } else {
+        console.error('Applicant not found:', applicantId);
+        alert('Error: Applicant not found');
+      }
+    }
+
+    function changeStatus(applicantId, newStatus) {
+      console.log('Global changeStatus called:', applicantId, 'to', newStatus);
+      if (!window.hrController) {
+        console.error('HR Controller not available');
+        alert('Error: Controller not initialized');
+        return;
+      }
+
+      var applicant = window.hrController.applicants.find(function (a) {
+        return a._id === applicantId;
+      });
+
+      if (applicant) {
+        window.hrController.changeStatus(applicant, newStatus);
+        // Trigger Angular digest to update the view
+        var scope = angular.element(document.body).scope();
+        if (scope) {
+          scope.$apply();
+        }
+      } else {
+        console.error('Applicant not found:', applicantId);
+        alert('Error: Applicant not found');
+      }
+    }
+  </script>
+</body>
+
+</html>

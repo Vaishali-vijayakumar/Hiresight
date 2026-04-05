@@ -1,0 +1,53 @@
+{
+  "name": "hiresight",
+  "version": "1.0.0",
+  "description": "HireSight - AI-powered hiring and resume management system",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "mocha",
+    "init-db": "node scripts/init-database.js",
+    "upload-csv": "node scripts/upload-csv-data.js",
+    "backfill-applicants": "node scripts/backfill-applicants-from-csv.js --file=PATH_TO_CSV"
+  },
+  "keywords": [
+    "hiring",
+    "resume",
+    "ai",
+    "recruitment",
+    "hr"
+  ],
+  "author": "HireSight Team",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "compromise": "^14.14.4",
+    "connect-mongo": "^5.1.0",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
+    "docx": "^9.5.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.5.1",
+    "express-session": "^1.18.2",
+    "form-data": "^4.0.4",
+    "helmet": "^7.2.0",
+    "json2csv": "^5.0.7",
+    "keyword-extractor": "^0.0.28",
+    "mammoth": "^1.10.0",
+    "mongoose": "^7.5.0",
+    "multer": "^2.0.2",
+    "natural": "^8.1.0",
+    "node-fetch": "^3.3.2",
+    "pdf-parse": "^1.1.1",
+    "sentiment": "^5.0.2",
+    "validator": "^13.15.15"
+  },
+  "devDependencies": {
+    "mocha": "^10.2.0",
+    "nodemon": "^3.0.1",
+    "selenium-webdriver": "^4.15.0"
+  }
+}

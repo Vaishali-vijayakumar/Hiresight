@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="adminUploadApp">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>HireSight - CSV Upload</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-animate.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f0ff;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .header {
+            background: #a490f0;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .app-name {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: white;
+        }
+        .nav a {
+            margin-left: 1.5rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            flex-grow: 1;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            border-bottom: 2px solid #e9edfb;
+            padding-bottom: 0.75rem;
+        }
+        .card p {
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        .drag-drop-area {
+            border: 2px dashed #b0b6d1;
+            border-radius: 8px;
+            padding: 60px;
+            text-align: center;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+            font-size: 1.1rem;
+            transition: border-color 0.3s ease;
+        }
+        .drag-drop-area:hover {
+            border-color: #a490f0;
+        }
+        #selectedFileName {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #a490f0;
+            font-size: 1rem;
+        }
+        .or-separator {
+            text-align: center;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #666;
+            position: relative;
+            z-index: 1;
+            font-size: 1rem;
+        }
+        .or-separator::before,
+        .or-separator::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background-color: #ddd;
+            z-index: -1;
+        }
+        .or-separator::before {
+            left: 0;
+        }
+        .or-separator::after {
+            right: 0;
+        }
+        .file-select-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .btn {
+            background-color: #e9edfb;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            white-space: nowrap;
+        }
+        .btn:hover {
+            background-color: #dbe2f8;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn.primary {
+            background-color: #a490f0;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        .btn.primary:hover {
+            background-color: #8f7ce0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .select-btn {
+            padding: 25px 50px;
+            font-size: 1.2rem;
+            width: 100%;
+        }
+        .submit-btn {
+            display: block;
+            margin: 2rem auto 0 auto;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.95rem;
+            width: fit-content;
+        }
+        .message {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .message .icon {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        .message.success {
+            background-color: #e6ffe6;
+            color: #28a745;
+            border: 1px solid #28a745;
+        }
+        .message.error {
+            background-color: #ffe6e6;
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+        #recordDetailsSection {
+            margin-top: 2rem;
+        }
+        #recordDetailsSection h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+            font-size: 1.25rem;
+        }
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+        }
+        .user-table th,
+        .user-table td {
+            border: 1px solid #f0f0ff;
+            padding: 0.8rem 1rem;
+            text-align: left;
+        }
+        .user-table th {
+            background-color: #b0b6d1;
+            color: white;
+            font-weight: 600;
+        }
+        .user-table tbody tr:nth-child(odd) {
+            background-color: #f8f8ff;
+        }
+        .user-table tbody tr:hover {
+            background-color: #e9edfb;
+        }
+        .status-active {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-deactivated {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .status-failed {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .btn-small {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            background-color: #a490f0;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-small:hover {
+            background-color: #8f7ce0;
+        }
+        .summary-text {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px dashed #e0e0e0;
+            font-weight: bold;
+            color: #555;
+            font-size: 1rem;
+        }
+        .footer {
+            background-color: #f0f2f5;
+            padding: 20px;
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+            border-top: 1px solid #ddd;
+            margin-top: auto;
+        }
+        .message.ng-enter {
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+        }
+        .message.ng-enter-active {
+            opacity: 1;
+        }
+        .message.ng-leave {
+            opacity: 1;
+        }
+        .message.ng-leave-active {
+            opacity: 0;
+        }
+        
+        /* Job Details Form Styles */
+        .job-details-section {
+            background: #f8f9ff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 1px solid #e9edfb;
+        }
+        
+        .job-details-section h3 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-size: 1.25rem;
+            border-bottom: 2px solid #a490f0;
+            padding-bottom: 0.5rem;
+        }
+        
+        .job-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group label {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #a490f0;
+            box-shadow: 0 0 0 2px rgba(164, 144, 240, 0.2);
+        }
+        
+        .form-group input[required]:invalid {
+            border-color: #ff6b6b;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body ng-controller="CsvController as vm">
+    <header class="header">
+        <div class="app-name">HireSight</div>
+        <nav class="nav">
+            <a href="adminhome.html" class="nav-link">Home</a>
+            <a href="login.html" class="nav-link">Logout</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="card">
+            <h2>LinkedIn Job Applicants CSV Upload</h2>
+            <p>Upload LinkedIn job application data with job details for comprehensive hiring management.</p>
+            
+            <!-- Job Details Form -->
+            <div class="job-details-section">
+                <h3>Job Details</h3>
+                <div class="job-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="jobTitle">Job Title *</label>
+                            <input type="text" id="jobTitle" ng-model="vm.jobDetails.title" placeholder="e.g., Senior Software Engineer" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="jobDepartment">Department *</label>
+                            <select id="jobDepartment" ng-model="vm.jobDetails.department" required>
+                                <option value="">Select Department</option>
+                                <option value="Engineering">Engineering</option>
+                                <option value="Product">Product</option>
+                                <option value="Design">Design</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Sales">Sales</option>
+                                <option value="HR">Human Resources</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Operations">Operations</option>
+                                <option value="Data">Data & Analytics</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="jobLocation">Location *</label>
+                            <input type="text" id="jobLocation" ng-model="vm.jobDetails.location" placeholder="e.g., San Francisco, CA" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="jobType">Job Type</label>
+                            <select id="jobType" ng-model="vm.jobDetails.type">
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Internship">Internship</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="experienceLevel">Experience Level</label>
+                            <select id="experienceLevel" ng-model="vm.jobDetails.experienceLevel">
+                                <option value="Entry-level">Entry-level</option>
+                                <option value="Mid-level">Mid-level</option>
+                                <option value="Senior-level">Senior-level</option>
+                                <option value="Executive">Executive</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="salaryRange">Salary</label>
+                            <select id="salaryCurrency" ng-model="vm.jobDetails.salaryCurrency">
+                                <option value="USD">USD (US Dollar)</option>
+                                <option value="INR">INR (Indian Rupee)</option>
+                                <option value="JPY">JPY (Japanese Yen)</option>
+                                <option value="EUR">EUR (Euro)</option>
+                                <option value="GBP">GBP (British Pound)</option>
+                                <option value="AUD">AUD (Australian Dollar)</option>
+                                <option value="CAD">CAD (Canadian Dollar)</option>
+                                <option value="CNY">CNY (Chinese Yuan)</option>
+                                <option value="SGD">SGD (Singapore Dollar)</option>
+                                <option value="AED">AED (UAE Dirham)</option>
+                            </select>
+                            <input style="margin-top: 0.5rem;" type="text" id="salaryRange" ng-model="vm.jobDetails.salaryRange" placeholder="e.g., 80,000 - 120,000 (per year)">
+                        </div>
+                    </div>
+                    
+                        <div class="form-row">
+                            <div class="form-group full-width">
+                                <label for="hiringManager">Hiring Manager</label>
+                                <select id="hiringManager" ng-model="vm.jobDetails.hiringManager">
+                                    <option value="">Select Hiring Manager</option>
+                                    <option ng-repeat="hm in vm.hiringManagers" value="{{hm.email}}">{{hm.name}} ({{hm.email}}) - {{hm.role}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="jobDescription">Job Description (Optional)</label>
+                            <textarea id="jobDescription" ng-model="vm.jobDetails.description" placeholder="Brief job description..." rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div drag-drop class="drag-drop-area">
+                Drag & Drop CSV File Here
+                <span id="selectedFileName" ng-show="vm.fileName">Selected: {{vm.fileName}}</span>
+            </div>
+
+            <div class="or-separator">OR</div>
+
+            <div class="file-select-container">
+                <input type="file" id="csvInput" file-input="vm.handleFile(files)" style="display:none;" accept=".csv" />
+                <button class="btn primary select-btn" ng-click="vm.selectFile()">Select File</button>
+            </div>
+
+            <button class="btn primary submit-btn" ng-click="vm.submitCsv()">Submit CSV</button>
+
+            <div ng-if="vm.message" class="message" ng-class="{'success': vm.isSuccess, 'error': !vm.isSuccess}">
+                <span class="icon">{{ vm.isSuccess ? '✅' : '❌' }}</span>&nbsp;{{ vm.message }}
+            </div>
+
+            <div ng-show="vm.candidates.length > 0" id="recordDetailsSection">
+                <h3>Processed Record Details</h3>
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Applicant Name</th>
+                            <th>Position</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="c in vm.candidates">
+                            <td>{{ c.name }}</td>
+                            <td>{{ c.position }}</td>
+                            <td><span ng-class="vm.getStatusClass(c.status)">{{ c.status }}</span></td>
+                            <td><button class="btn-small">View</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="summary-text"><strong>Summary:</strong> Total {{ vm.candidates.length }} records processed.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        © 2025 HireSight. All rights reserved.
+    </footer>
+
+    <script>
+        const app = angular.module('adminUploadApp', ['ngAnimate']);
+
+        app.controller('CsvController', ['$scope', 'CsvService', '$timeout', 'StatusFactory', '$http',
+            function ($scope, CsvService, $timeout, StatusFactory, $http) {
+                var vm = this;
+                vm.candidates = [];
+                vm.isSuccess = false;
+                vm.message = "";
+                vm.fileName = "";
+                vm.currentFile = null;
+                
+                // Job details form data
+                vm.jobDetails = {
+                    title: '',
+                    department: '',
+                    location: '',
+                    type: 'Full-time',
+                    experienceLevel: 'Mid-level',
+                    salaryCurrency: 'USD',
+                    salaryRange: '',
+                    hiringManager: '',
+                    description: ''
+                };
+
+                // Load Hiring Managers (HR and Admin users)
+                vm.hiringManagers = [];
+                vm.loadHiringManagers = function() {
+                    $http.get('http://localhost:3000/api/users')
+                        .then(function(response) {
+                            var users = Array.isArray(response.data) ? response.data : [];
+                            vm.hiringManagers = users
+                                .filter(function(u) { return (u.role === 'HR' || u.role === 'Admin') && u.status === 'Active'; })
+                                .map(function(u) { return { name: u.name, email: u.email, role: u.role }; });
+                        })
+                        .catch(function(err) {
+                            console.error('Failed to load hiring managers', err);
+                        });
+                };
+                vm.loadHiringManagers();
+
+                vm.selectFile = () => document.getElementById("csvInput").click();
+
+                vm.handleFile = function(files) {
+                    if (files.length > 0) {
+                        $scope.$apply(() => {
+                            vm.currentFile = files[0];
+                            vm.fileName = files[0].name;
+                            vm.message = "";
+                            vm.candidates = [];
+                        });
+                    }
+                };
+
+                vm.submitCsv = function () {
+                    if (!vm.currentFile) {
+                        vm.message = "Please select a CSV file first.";
+                        vm.isSuccess = false;
+                        return;
+                    }
+                    
+                    // Validate required job details
+                    if (!vm.jobDetails.title || !vm.jobDetails.department || !vm.jobDetails.location) {
+                        vm.message = "Please fill in all required job details (Title, Department, Location).";
+                        vm.isSuccess = false;
+                        return;
+                    }
+
+                    CsvService.processCsv(vm.currentFile, vm.jobDetails, function (result) {
+                        vm.candidates = result.mockApplicants || [];
+                        vm.isSuccess = true;
+                        vm.message = result.message || "LinkedIn job applicants uploaded successfully!";
+                        
+                        // Show job details in the result
+                        if (result.jobDetails) {
+                            vm.message += ` - Job: ${result.jobDetails.jobTitle} (${result.jobDetails.totalApplicants} applicants)`;
+                        }
+                        
+                        $scope.$apply();
+
+                        $timeout(function() {
+                            vm.message = "";
+                        }, 8000);
+                    }, function (error) {
+                        vm.isSuccess = false;
+                        vm.message = "There were errors during upload: " + error.message;
+                        $scope.$apply();
+                    });
+                };
+
+                vm.getStatusClass = function (status) {
+                    return StatusFactory.statusClasses[status] || '';
+                };
+
+                // Expose handleFile to the scope for drag-drop directive
+                $scope.handleFile = vm.handleFile;
+            }
+        ]);
+
+        app.service('CsvService', function () {
+            this.processCsv = function (file, jobDetails, successCallback, errorCallback) {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                // Add job details to form data
+                formData.append('jobTitle', jobDetails.title);
+                formData.append('jobDepartment', jobDetails.department);
+                formData.append('jobLocation', jobDetails.location);
+                formData.append('jobDescription', jobDetails.description);
+                formData.append('salaryCurrency', jobDetails.salaryCurrency);
+                formData.append('salaryRange', jobDetails.salaryRange);
+                formData.append('jobType', jobDetails.type);
+                formData.append('experienceLevel', jobDetails.experienceLevel);
+                formData.append('hiringManager', jobDetails.hiringManager);
+                
+                fetch('http://localhost:3000/api/adminupload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success !== false && data.message) {
+                        // Create mock data for display based on actual response
+                        const mockApplicants = [
+                            { 
+                                name: "Job Posting Created", 
+                                position: data.jobDetails?.jobTitle || jobDetails.title, 
+                                status: "Active" 
+                            },
+                            { 
+                                name: `${data.dataImported?.applicants || 0} Applicants`, 
+                                position: "Imported Successfully", 
+                                status: "Active" 
+                            },
+                            { 
+                                name: "LinkedIn Integration", 
+                                position: "Ready for HR Review", 
+                                status: "Active" 
+                            }
+                        ];
+                        
+                        successCallback({
+                            message: data.message,
+                            jobDetails: data.jobDetails,
+                            mockApplicants: mockApplicants,
+                            statusBreakdown: data.statusBreakdown,
+                            summary: data.summary
+                        });
+                    } else {
+                        errorCallback({ message: data.error || 'Upload failed' });
+                    }
+                })
+                .catch(error => {
+                    errorCallback({ message: 'Network error: ' + error.message });
+                });
+            };
+        });
+
+        app.factory('StatusFactory', function () {
+            return {
+                statusClasses: {
+                    Active: 'status-active',
+                    Deactivated: 'status-deactivated',
+                    Failed: 'status-failed'
+                }
+            };
+        });
+
+        app.directive("dragDrop", function () {
+            return {
+                restrict: "A",
+                link: function (scope, element) {
+                    element.on("dragover", function (e) {
+                        e.preventDefault();
+                        element.css("border-color", "#a490f0");
+                    });
+                    element.on("dragleave", function () {
+                        element.css("border-color", "#b0b6d1");
+                    });
+                    element.on("drop", function (e) {
+                        e.preventDefault();
+                        element.css("border-color", "#b0b6d1");
+                        scope.handleFile(e.originalEvent.dataTransfer.files);
+                    });
+                }
+            };
+        });
+
+        app.directive("fileInput", function () {
+            return {
+                scope: {
+                    fileInput: "&"
+                },
+                link: function (scope, element) {
+                    element.bind("change", function () {
+                        scope.fileInput({ files: element[0].files });
+                    });
+                }
+            };
+        });
+    </script>
+</body>
+</html>

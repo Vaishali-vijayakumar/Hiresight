@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireSight - Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f0ff;
+            color: #333;
+        }
+        
+        header {
+            background: #a490f0;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+        }
+        .logo {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .nav a {
+            margin-left: 1.5rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .dashboard {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.75rem;
+        }
+        .card {
+            background: white;
+            padding: 0.6rem 0.8rem;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .card h4 {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #555;
+        }
+        .card p {
+            margin: 0.3rem 0 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .card.applied { background: #e3f2fd; border-left: 4px solid #2196f3; }
+        .card.rejected { background: #ffebee; border-left: 4px solid #f44336; }
+        .card.selected { background: #e8f5e9; border-left: 4px solid #4caf50; }
+        .card.pending  { background: #fff8e1; border-left: 4px solid #ff9800; }
+        .card.ongoing  { background: #ede7f6; border-left: 4px solid #673ab7; }
+        .card.completed { background: #eceff1; border-left: 4px solid #607d8b; }
+        .charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        @media (max-width: 768px) {
+            .charts {
+                grid-template-columns: 1fr;
+            }
+            .chart-card {
+                height: 250px;
+            }
+        }
+        .chart-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            height: 280px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chart-card h4 {
+            margin: 0 0 0.5rem 0;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        .chart-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        .bottom {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        .card.table-card {
+            padding: 0.8rem;
+            font-size: 0.85rem;
+        }
+        .card.table-card table th,
+        .card.table-card table td {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+        .card.quick-actions {
+            padding: 0.8rem;
+            font-size: 0.9rem;
+        }
+        .quick-actions ul {
+            padding-left: 0;
+            list-style: none;
+        }
+        .quick-actions li {
+            background: #e9edfb;
+            padding: 0.5rem;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .quick-actions li:hover {
+            background: #dbe2f8;
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .table-header h3 {
+            color: #333;
+            font-size: 1.4rem;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        th {
+            background-color: #a490f0;
+            color: white;
+        }
+        
+        .linkedin-row {
+            background: linear-gradient(90deg, #0077b5, #0077b5) left/4px 100% no-repeat, #f0f9ff;
+        }
+        
+        .source-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .badge-linkedin {
+            background: #0077b5;
+            color: white;
+        }
+        
+        .badge-manual {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .priority-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .priority-high { background: #fecaca; color: #991b1b; }
+        .priority-medium { background: #fed7aa; color: #9a3412; }
+        .priority-low { background: #d1fae5; color: #065f46; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .empty-state p {
+            margin-bottom: 30px;
+            color: #666;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .table-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">HireSight</div>
+        <nav class="nav">
+            <a href="adminupload.html">Upload CSV</a>
+            <a href="adminhome.html">Home</a>
+            <a href="login.html">Logout</a>
+        </nav>
+    </header>
+    
+    <main class="dashboard">
+        <!-- Statistics Cards -->
+        <div class="stats">
+            <div class="card applied">
+                <h4>📋 Total Jobs</h4>
+                <p id="totalJobs">0</p>
+            </div>
+            <div class="card ongoing">
+                <h4>👥 Total Applicants</h4>
+                <p id="totalApplicants">0</p>
+            </div>
+            <div class="card pending">
+                <h4>⏳ Pending Reviews</h4>
+                <p id="pendingReviews">0</p>
+            </div>
+            <div class="card selected">
+                <h4>✅ Selected</h4>
+                <p id="selectedCandidates">0</p>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts">
+            <div class="chart-card">
+                <h4>📊 Applications by Department</h4>
+                <div class="chart-container">
+                    <canvas id="departmentChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h4>🎯 Application Status Distribution</h4>
+                <div class="chart-container">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="bottom">
+            <div class="card table-card">
+                <h4>💼 Job Postings & LinkedIn Applications</h4><br>
+                <div id="tableContainer">
+                    <div class="loading">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">⏳</div>
+                        <div>Loading job data...</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card quick-actions">
+                <h4>Quick Actions</h4>
+                <ul>
+                    <li onclick="refreshData()">🔄 Refresh Data</li>
+                    <li onclick="exportData()">📊 Export Report</li>
+                    <li onclick="window.location.href='adminupload.html'">📤 Upload New CSV</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Global variables
+        let jobsData = [];
+        let applicantsData = [];
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing LinkedIn Jobs Dashboard...');
+            loadDashboardData();
+        });
+
+        // Load all dashboard data
+        async function loadDashboardData() {
+            try {
+                console.log('📊 Loading dashboard data...');
+                
+                // Load jobs data
+                const jobsResponse = await fetch('/api/hiring');
+                const jobs = await jobsResponse.json();
+                
+                // Load applicants data  
+                const applicantsResponse = await fetch('/api/applicants');
+                const applicants = await applicantsResponse.json();
+
+                jobsData = Array.isArray(jobs) ? jobs : [];
+                applicantsData = Array.isArray(applicants.applicants) ? applicants.applicants : 
+                                Array.isArray(applicants) ? applicants : [];
+
+                console.log('✅ Data loaded:', {
+                    jobs: jobsData.length,
+                    applicants: applicantsData.length
+                });
+
+                // Filter LinkedIn data
+                const linkedinJobs = jobsData.filter(job => isLinkedInJob(job));
+                const linkedinApplicants = applicantsData.filter(app => app.source === 'LinkedIn');
+
+                console.log('🔗 LinkedIn data:', {
+                    jobs: linkedinJobs.length,
+                    applicants: linkedinApplicants.length
+                });
+
+                // Update all dashboard components
+                updateStatistics(linkedinJobs, linkedinApplicants);
+                renderJobsTable(linkedinJobs);
+                renderCharts(linkedinJobs, linkedinApplicants);
+
+            } catch (error) {
+                console.error('❌ Error loading dashboard data:', error);
+                showError('Failed to load dashboard data. Please refresh the page.');
+            }
+        }
+
+        // Check if job is from LinkedIn
+        function isLinkedInJob(job) {
+            return job.isLinkedInJob || 
+                   job.source === 'LinkedIn CSV Import' || 
+                   (job.adminNotes && job.adminNotes.includes('LinkedIn CSV upload'));
+        }
+
+        // Update statistics cards
+        function updateStatistics(jobs, applicants) {
+            const totalApplications = jobs.reduce((sum, job) => sum + (job.Total || 0), 0);
+            const pendingReviews = jobs.reduce((sum, job) => sum + (job.Pending || 0), 0);
+            const selectedCandidates = jobs.reduce((sum, job) => sum + (job.Selected || 0), 0);
+
+            document.getElementById('totalJobs').textContent = jobs.length;
+            document.getElementById('totalApplicants').textContent = totalApplications;
+            document.getElementById('pendingReviews').textContent = pendingReviews;
+            document.getElementById('selectedCandidates').textContent = selectedCandidates;
+        }
+
+
+        // Render jobs table
+        function renderJobsTable(jobs) {
+            const container = document.getElementById('tableContainer');
+
+            if (jobs.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📄</div>
+                        <h3>No LinkedIn Job Postings</h3>
+                        <p>Upload LinkedIn job applicant CSV files to see job postings and manage applications here.</p>
+                        <a href="adminupload.html" class="btn btn-success">📤 Upload Your First CSV</a>
+                    </div>
+                `;
+                return;
+            }
+
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Job Title</th>
+                            <th>Department</th>
+                            <th>Location</th>
+                            <th>Source</th>
+                            <th>Applications</th>
+                            <th>Pending</th>
+                            <th>Selected</th>
+                            <th>Priority</th>
+                            <th>Posted Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            jobs.forEach(job => {
+                const isLinkedIn = isLinkedInJob(job);
+                const rowClass = isLinkedIn ? 'linkedin-row' : '';
+                
+                const sourceClass = isLinkedIn ? 'badge-linkedin' : 'badge-manual';
+                const sourceText = isLinkedIn ? '🔗 LinkedIn' : '✋ Manual';
+                
+                const priorityClass = `priority-${(job.Priority || 'medium').toLowerCase()}`;
+                
+                const postedDate = job.csvUploadDate || job.PostedDate || job.lastUpdated;
+                const displayDate = postedDate ? new Date(postedDate).toLocaleDateString() : 'N/A';
+
+                tableHTML += `
+                    <tr class="${rowClass}">
+                        <td>
+                            <strong>${job.Position || 'N/A'}</strong>
+                            <br><small style="color: #666;">${job.JobType || 'Full-time'}</small>
+                        </td>
+                        <td>${(job.Department || 'N/A').toUpperCase()}</td>
+                        <td>${job.Location || 'N/A'}</td>
+                        <td><span class="source-badge ${sourceClass}">${sourceText}</span></td>
+                        <td><strong style="color: #0077b5;">${job.Total || 0}</strong></td>
+                        <td>${job.Pending || 0}</td>
+                        <td>${job.Selected || 0}</td>
+                        <td><span class="priority-badge ${priorityClass}">${job.Priority || 'Medium'}</span></td>
+                        <td><small>${displayDate}</small></td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += '</tbody></table>';
+            container.innerHTML = tableHTML;
+        }
+
+        // Render charts
+        function renderCharts(jobs, applicants) {
+            renderDepartmentChart(jobs);
+            renderStatusChart(jobs);
+        }
+
+        // Color palette for departments
+        function getDepartmentColors(count) {
+            const colors = [
+                '#a490f0', // Purple (primary theme)
+                '#4caf50', // Green
+                '#2196f3', // Blue
+                '#ff9800', // Orange
+                '#f44336', // Red
+                '#9c27b0', // Dark Purple
+                '#00bcd4', // Cyan
+                '#795548', // Brown
+                '#607d8b', // Blue Grey
+                '#e91e63', // Pink
+                '#3f51b5', // Indigo
+                '#009688', // Teal
+                '#8bc34a', // Light Green
+                '#ffc107', // Amber
+                '#ff5722'  // Deep Orange
+            ];
+            return colors.slice(0, count);
+        }
+        
+        // Get border colors (darker versions)
+        function getDepartmentBorderColors(count) {
+            const borderColors = [
+                '#8f7ce0', // Darker Purple
+                '#45a049', // Darker Green
+                '#1976d2', // Darker Blue
+                '#f57c00', // Darker Orange
+                '#d32f2f', // Darker Red
+                '#7b1fa2', // Darker Purple
+                '#0097a7', // Darker Cyan
+                '#5d4037', // Darker Brown
+                '#455a64', // Darker Blue Grey
+                '#c2185b', // Darker Pink
+                '#303f9f', // Darker Indigo
+                '#00695c', // Darker Teal
+                '#689f38', // Darker Light Green
+                '#ff8f00', // Darker Amber
+                '#d84315'  // Darker Deep Orange
+            ];
+            return borderColors.slice(0, count);
+        }
+
+        // Render department chart
+        function renderDepartmentChart(jobs) {
+            const ctx = document.getElementById('departmentChart').getContext('2d');
+            
+            // Group by department
+            const deptData = {};
+            jobs.forEach(job => {
+                const dept = job.Department || 'Other';
+                if (!deptData[dept]) {
+                    deptData[dept] = { jobs: 0, applicants: 0 };
+                }
+                deptData[dept].jobs += 1;
+                deptData[dept].applicants += job.Total || 0;
+            });
+
+            const labels = Object.keys(deptData);
+            const applicantCounts = Object.values(deptData).map(d => d.applicants);
+            const jobCounts = Object.values(deptData).map(d => d.jobs);
+
+            if (labels.length === 0) {
+                ctx.canvas.style.display = 'none';
+                return;
+            }
+
+            // Get colors based on number of departments
+            const backgroundColors = getDepartmentColors(labels.length);
+            const borderColors = getDepartmentBorderColors(labels.length);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Applications',
+                            data: applicantCounts,
+                            backgroundColor: backgroundColors,
+                            borderColor: borderColors,
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Job Postings',
+                            data: jobCounts,
+                            backgroundColor: backgroundColors.map(color => color + '80'), // Add transparency
+                            borderColor: borderColors,
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                fontSize: 12,
+                                boxWidth: 12
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                fontSize: 10
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                fontSize: 10
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render status chart
+        function renderStatusChart(jobs) {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+
+            const totalPending = jobs.reduce((sum, job) => sum + (job.Pending || 0), 0);
+            const totalSelected = jobs.reduce((sum, job) => sum + (job.Selected || 0), 0);
+            const totalRejected = jobs.reduce((sum, job) => sum + (job.Rejected || 0), 0);
+            const totalHired = jobs.reduce((sum, job) => sum + (job.Hired || 0), 0);
+
+            if (totalPending + totalSelected + totalRejected + totalHired === 0) {
+                ctx.canvas.style.display = 'none';
+                return;
+            }
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending Review', 'Selected', 'Rejected', 'Hired'],
+                    datasets: [{
+                        data: [totalPending, totalSelected, totalRejected, totalHired],
+                        backgroundColor: [
+                            '#fbbf24',
+                            '#10b981',
+                            '#ef4444',
+                            '#3b82f6'
+                        ],
+                        borderWidth: 3,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Utility functions
+        function refreshData() {
+            console.log('🔄 Refreshing dashboard data...');
+            loadDashboardData();
+        }
+
+        function exportData() {
+            console.log('📊 Exporting data...');
+            // TODO: Implement data export functionality
+            alert('Export functionality coming soon!');
+        }
+
+        function showError(message) {
+            const container = document.getElementById('tableContainer');
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="icon">❌</div>
+                    <h3>Error Loading Data</h3>
+                    <p>${message}</p>
+                    <button class="btn btn-primary" onclick="refreshData()">🔄 Try Again</button>
+                </div>
+            `;
+        }
+
+        // Auto-refresh every 5 minutes
+        setInterval(refreshData, 5 * 60 * 1000);
+        
+        console.log('✅ Dashboard script loaded successfully');
+    </script>
+</body>
+</html>
