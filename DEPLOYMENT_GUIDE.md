@@ -46,22 +46,21 @@ This project uses Supabase for the database and resume storage.
 
 ---
 
-## 3. Frontend Deployment (Vercel/Angular) 🎨
+## 3. Frontend Deployment (Vercel) 🎨
 
 1.  **Prepare the Frontend**:
-    - In your local project, go to `client/src/index.html`.
-    - Update `window.API_URL` to point to your new **Render** URL:
+    - Ensure `client/src/index.html` has your Render backend URL:
       ```javascript
-      window.API_URL = "https://hiresight-backend.onrender.com/api";
+      window.API_URL = "https://hiresight-sgfv.onrender.com/api";
       ```
 2.  **Connect to Vercel**:
     - Push your changes to GitHub.
     - Import the repository into [Vercel](https://vercel.com).
-    - **Important**: Set the **Root Directory** to `client`.
+    - **Important**: Leave the **"Root Directory"** empty (or set to `/`). Vercel will now automatically use the root `vercel.json` I created to build the `client/` folder.
 3.  **Configure Build Settings**:
-    - **Framework Preset**: Angular.
-    - **Build Command**: `npm run build`.
-    - **Output Directory**: `dist/client/browser`. 
+    - **Framework Preset**: Other (or Vercel will auto-detect from `vercel.json`).
+    - **Build Command**: `npm run build`
+    - **Output Directory**: Leave as default (the `vercel.json` already defines this).
 4.  **Deploy**: Click **Deploy**.
 
 ---
