@@ -49,14 +49,14 @@ This project uses Supabase for the database and resume storage.
 ## 3. Frontend Deployment (Vercel) 🎨
 
 1.  **Prepare the Frontend**:
-    - Ensure `client/src/index.html` has your Render backend URL:
+    - The API URL is managed in `client/src/config.js`. Ensure it points to your Render backend:
       ```javascript
-      window.API_URL = "https://hiresight-backend-2t4l.onrender.com/api";
+      export const API_URL = "https://hiresight-backend-2t4l.onrender.com/api";
       ```
 2.  **Connect to Vercel**:
     - Push your changes to GitHub.
     - Import the repository into [Vercel](https://vercel.com).
-    - **Important**: Leave the **"Root Directory"** empty (or set to `/`). Vercel will now automatically use the root `vercel.json` I created to build the `client/` folder.
+    - **Important**: Leave the **"Root Directory"** empty (or set to `/`). Vercel will now automatically use the root `vercel.json` I created to build the React app in the `client/` folder.
 3.  **Configure Build Settings**:
     - **Framework Preset**: Other (or Vercel will auto-detect from `vercel.json`).
     - **Build Command**: `npm run build`
