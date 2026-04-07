@@ -51,7 +51,7 @@ This project uses Supabase for the database and resume storage.
 1.  **Prepare the Frontend**:
     - Ensure `client/src/index.html` has your Render backend URL:
       ```javascript
-      window.API_URL = "https://hiresight-sgfv.onrender.com/api";
+      window.API_URL = "https://hiresight-backend-2t4l.onrender.com/api";
       ```
 2.  **Connect to Vercel**:
     - Push your changes to GitHub.
