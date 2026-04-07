@@ -29,11 +29,17 @@ CREATE TRIGGER on_auth_user_created
 -- 2. Create Resumes table
 CREATE TABLE public.resumes (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  applicant_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  first_name TEXT,
+  last_name TEXT,
+  email TEXT,
+  applicant_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
   file_url TEXT NOT NULL,
   file_name TEXT NOT NULL,
   extracted_text TEXT,
+  summary TEXT,
+  tone TEXT,
   ai_score INTEGER DEFAULT 0,
+  skills JSONB DEFAULT '{}'::jsonb,
   keywords JSONB DEFAULT '[]'::jsonb,
   entities JSONB DEFAULT '{}'::jsonb,
   sentiment JSONB DEFAULT '{}'::jsonb,

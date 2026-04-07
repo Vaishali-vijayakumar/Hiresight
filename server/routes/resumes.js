@@ -7,7 +7,7 @@ router.get('/', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('resumes')
-      .select('*, hr:applicant_id(email, first_name, last_name)')
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -24,7 +24,7 @@ router.get('/:id', async (req, res) => {
     const { id } = req.params;
     const { data, error } = await supabase
       .from('resumes')
-      .select('*, hr:applicant_id(email, first_name, last_name)')
+      .select('*')
       .eq('id', id)
       .single();
 

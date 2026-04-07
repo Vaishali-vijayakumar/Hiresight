@@ -63,14 +63,37 @@ router.post('/', upload.single('resume'), async (req, res) => {
 
     const score = Math.min(100, Math.max(0, keywords.length * 2 + sentimentResult.score));
 
+    // 2. Extra Analysis (to match frontend expectations)
+    const HARD_SKILLS_LIST = ['javascript', 'python', 'java', 'c++', 'react', 'angular', 'node.js', 'sql', 'nosql', 'aws', 'azure', 'docker', 'kubernetes', 'typescript'];
+    const hardSkills = keywords.filter(k => HARD_SKILLS_LIST.includes(k.toLowerCase()));
+    const otherKeywords = keywords.filter(k => !HARD_SKILLS_LIST.includes(k.toLowerCase()));
+    
+    let tone = 'Neutral';
+    if (sentimentResult.score > 5) tone = 'Confident & Positive';
+    else if (sentimentResult.score > 2) tone = 'Professional';
+    else if (sentimentResult.score < -2) tone = 'Concerning';
+
+    const summary = `Candidate shows proficiency in ${hardSkills.slice(0, 3).join(', ') || 'specialized technical domains'}. The resume exhibits a ${tone.toLowerCase()} tone with ${keywords.length} relevant professional keywords matching industry standards.`;
+
+    const { first_name, last_name, email } = req.body;
+
     // 3. Save metadata AND analysis to database
     const { data: dbData, error: dbError } = await supabase
       .from('resumes')
       .insert({
+        first_name,
+        last_name,
+        email,
         file_name: originalname,
         file_url: fileUrl,
         extracted_text: extractedText,
+        summary,
+        tone,
         ai_score: score,
+        skills: {
+          hard: [...new Set(hardSkills)],
+          others: otherKeywords.slice(0, 10),
+        },
         keywords: keywords.slice(0, 10),
         entities: {
           organizations: [...new Set(organizations)].slice(0, 5),
@@ -80,8 +103,7 @@ router.post('/', upload.single('resume'), async (req, res) => {
           score: sentimentResult.score,
           comparative: sentimentResult.comparative
         },
-        status: 'Pending',
-        applicant_id: '00000000-0000-0000-0000-000000000000'
+        status: 'Pending'
       })
       .select()
       .single();
