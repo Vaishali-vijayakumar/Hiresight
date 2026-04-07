@@ -7,6 +7,7 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "test": "mocha",
+    "build": "cd client && npm install && npm run build",
     "init-db": "node scripts/init-database.js",
     "upload-csv": "node scripts/upload-csv-data.js",
     "backfill-applicants": "node scripts/backfill-applicants-from-csv.js --file=PATH_TO_CSV"
