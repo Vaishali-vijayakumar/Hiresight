@@ -3,10 +3,46 @@ const router = express.Router();
 const compromise = require('compromise');
 const keywordExtractor = require('keyword-extractor');
 const Sentiment = require('sentiment');
+const multer = require('multer');
+const pdfParse = require('pdf-parse');
+const mammoth = require('mammoth');
 
 const sentiment = new Sentiment();
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 const HARD_SKILLS_LIST = ['javascript', 'python', 'java', 'c++', 'react', 'angular', 'node.js', 'sql', 'nosql', 'aws', 'azure', 'docker', 'kubernetes', 'typescript'];
+
+router.post('/upload', upload.single('resume'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const { originalname, mimetype, buffer } = req.file;
+    let extractedText = '';
+
+    if (mimetype === 'application/pdf') {
+      const pdfData = await pdfParse(buffer);
+      extractedText = pdfData.text;
+    } else if (mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      const docxData = await mammoth.extractRawText({ buffer: buffer });
+      extractedText = docxData.value;
+    } else if (mimetype === 'text/plain' || originalname.endsWith('.txt')) {
+      extractedText = buffer.toString('utf-8');
+    } else {
+      return res.status(400).json({ error: 'Unsupported file format. Please upload PDF, DOCX, or TXT.' });
+    }
+
+    // Clean up empty lines and normalize whitespace
+    extractedText = extractedText.replace(/\r\n/g, '\n').replace(/\n\s*\n+/g, '\n\n').trim();
+
+    return res.json({ success: true, text: extractedText });
+  } catch (error) {
+    console.error('OCR/Text Extraction Error:', error);
+    return res.status(500).json({ error: 'Failed to extract text from the uploaded document.' });
+  }
+});
 
 router.post('/', async (req, res) => {
   try {

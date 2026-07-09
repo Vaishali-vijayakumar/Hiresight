@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
+import { API_URL } from '../config';
 import { 
   FileText, Sparkles, Award, CheckCircle2, AlertCircle, Printer, 
   UploadCloud, ArrowLeft, RefreshCw, Check, ClipboardList, PenTool, Plus, Trash2, BookOpen
@@ -213,28 +215,41 @@ const CandidatePortal = () => {
     setSuggestions(currentSuggestions);
   }, [auditorText, auditorTargetRole, portalMode]);
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
       setParsingFile(true);
       setFileName(file.name);
       
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const text = event.target.result;
-        setTimeout(() => {
-          if (file.name.endsWith('.txt')) {
-            setAuditorText(text);
-          } else {
-            setAuditorText(
-              `Vaishali Vijayakumar\nvaishali.vijayakumar@example.com\n+1 (555) 432-8765\n\nWORK DETAILS:\nWorking as an engineer for general applications. Good knowledge of building APIs, managing software scripts, and running basic configurations.\n\nSKILLS & STRENGTHS:\nProgramming, Web Development, Team Leadership`
-            );
+      const formData = new FormData();
+      formData.append('resume', file);
+
+      try {
+        const response = await axios.post(`${API_URL}/analyze/upload`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
           }
-          setParsingFile(false);
+        });
+        if (response.data.text) {
+          setAuditorText(response.data.text);
           setAuditorSubState('active');
-        }, 1200);
-      };
-      reader.readAsText(file);
+        }
+      } catch (err) {
+        console.error('File parsing failed:', err);
+        // Fallback for TXT files
+        if (file.name.endsWith('.txt')) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            setAuditorText(event.target.result);
+            setAuditorSubState('active');
+          };
+          reader.readAsText(file);
+        } else {
+          alert('Failed to extract text from the file on the server. Please check that the server is running and try again, or paste the text manually.');
+        }
+      } finally {
+        setParsingFile(false);
+      }
     }
   };
 
