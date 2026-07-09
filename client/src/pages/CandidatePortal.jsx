@@ -37,7 +37,14 @@ const CandidatePortal = () => {
 
   const handleBuilderFieldChange = (e) => {
     const { name, value } = e.target;
-    setBuilderData(prev => ({ ...prev, [name]: value }));
+    setBuilderData(prev => {
+      const updated = { ...prev, [name]: value };
+      if (name === 'targetRole') {
+        const keywords = getDynamicKeywordsForRole(value);
+        updated.skills = keywords.slice(0, 8).join(', ');
+      }
+      return updated;
+    });
   };
 
   const handleExpChange = (id, field, val) => {
@@ -563,8 +570,38 @@ const CandidatePortal = () => {
               </div>
 
               {/* Styled Preview Column */}
-              <div className="lg:col-span-6">
-                <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm text-center mb-4">
+              <div className="lg:col-span-6 space-y-4">
+                {/* Dynamic Tips & Improving Suggestions */}
+                <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm no-print">
+                  <div className="flex items-center gap-1.5 text-pink-600 text-[10px] font-bold uppercase tracking-wider mb-2">
+                    <Sparkles size={12} />
+                    <span>Suggestions to Improve & Get Hired</span>
+                  </div>
+                  <h4 className="text-sm font-extrabold text-slate-900 mb-2">Guidelines for "{builderData.targetRole || 'your target role'}"</h4>
+                  
+                  <div className="space-y-2">
+                    <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 flex items-start gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-pink-500 mt-1.5 shrink-0" />
+                      <p className="text-[11px] text-slate-600 font-medium leading-relaxed">
+                        For <span className="font-bold text-slate-800">"{builderData.targetRole}"</span>, standard parsers look for experience in: <span className="font-bold text-pink-600">{getDynamicKeywordsForRole(builderData.targetRole).slice(0, 4).join(', ')}</span>. Keep this in your skills list.
+                      </p>
+                    </div>
+                    <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 flex items-start gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-pink-500 mt-1.5 shrink-0" />
+                      <p className="text-[11px] text-slate-600 font-medium leading-relaxed">
+                        Quantify your accomplishments! Instead of saying "wrote code", say: <span className="italic font-bold text-slate-800">"Improved system loading speed by 25% using cached database schemas."</span>
+                      </p>
+                    </div>
+                    <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 flex items-start gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-pink-500 mt-1.5 shrink-0" />
+                      <p className="text-[11px] text-slate-600 font-medium leading-relaxed">
+                        Ensure you match the company's language. Try to align your Professional Summary directly with the key requirements of your target vacancy.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm text-center no-print">
                   <span className="text-[10px] text-pink-600 font-bold uppercase tracking-wider block">ATS Formatting Metric</span>
                   <p className="text-xs text-slate-500 font-semibold mt-1">This structure is automatically set up for clean parser compliance. (Estimated ATS score: 98%)</p>
                 </div>
@@ -677,7 +714,7 @@ const CandidatePortal = () => {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full">
+                <div className="max-w-xl w-full">
                   
                   {/* File Upload Zone */}
                   <motion.div 
@@ -701,7 +738,7 @@ const CandidatePortal = () => {
                         Upload your current PDF, DOCX, or TXT resume to audit it against target keywords and obtain layout optimization suggestions.
                       </p>
                       
-                      <div className="border border-dashed border-slate-200 rounded-xl p-6 bg-slate-50 text-center hover:bg-slate-100/50 transition-colors relative cursor-pointer">
+                      <div className="border border-dashed border-slate-200 rounded-xl p-8 bg-slate-50 text-center hover:bg-slate-100/50 transition-colors relative cursor-pointer">
                         <input 
                           type="file" 
                           id="auditor-file-upload" 
@@ -713,38 +750,6 @@ const CandidatePortal = () => {
                         <p className="text-[10px] text-slate-400 mt-0.5">Supports PDF, DOCX, or TXT formats</p>
                       </div>
                     </div>
-                  </motion.div>
-
-                  {/* Paste Box */}
-                  <motion.div 
-                    whileHover={{ y: -4 }}
-                    className="bg-white border border-slate-200 rounded-2xl p-8 flex flex-col justify-between shadow-sm"
-                  >
-                    <div>
-                      <div className="w-12 h-12 bg-pink-50 border border-pink-100 rounded-xl flex items-center justify-center text-pink-600 mb-6">
-                        <PenTool size={24} />
-                      </div>
-                      <h3 className="text-xl font-bold text-slate-900 font-outfit mb-2">Paste Resume Text</h3>
-                      <p className="text-slate-500 text-sm leading-relaxed mb-4">
-                        Paste your resume content directly to view your score and suggested keywords immediately.
-                      </p>
-                      
-                      <textarea
-                        rows={4}
-                        value={auditorText}
-                        onChange={(e) => setAuditorText(e.target.value)}
-                        className="input-field text-xs font-sans bg-slate-50 resize-none h-[110px] mb-2"
-                        placeholder="Paste experience, skills, and summary here..."
-                      />
-                    </div>
-                    
-                    <button 
-                      onClick={handlePasteSubmit}
-                      className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs transition-colors flex items-center justify-center gap-1"
-                    >
-                      <span>Analyze Text</span>
-                      <ChevronRight />
-                    </button>
                   </motion.div>
                 </div>
               </div>
