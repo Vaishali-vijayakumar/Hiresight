@@ -86,3 +86,59 @@ CREATE POLICY "HR and Admins can update resumes" ON public.resumes FOR UPDATE US
     SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role IN ('Admin', 'HR')
   )
 );
+
+-- 5. Create Candidates table for HR Admin tracking
+CREATE TABLE IF NOT EXISTS public.candidates (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  first_name TEXT NOT NULL,
+  last_name TEXT,
+  email TEXT NOT NULL,
+  phone TEXT,
+  position TEXT NOT NULL,
+  experience TEXT,
+  skills TEXT,
+  linkedin_profile TEXT,
+  status TEXT DEFAULT 'Applied' CHECK (status IN ('Applied', 'Under Review', 'Interview Scheduled', 'Selected', 'Rejected', 'Hired')),
+  assigned_tl TEXT,
+  assigned_manager TEXT,
+  interview_date TIMESTAMP WITH TIME ZONE,
+  interview_feedback TEXT,
+  source TEXT DEFAULT 'Manual',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 6. Create Assignment Rules table
+CREATE TABLE IF NOT EXISTS public.assignment_rules (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  position_pattern TEXT UNIQUE NOT NULL,
+  assigned_tl TEXT NOT NULL,
+  assigned_manager TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Insert default assignment rules
+INSERT INTO public.assignment_rules (position_pattern, assigned_tl, assigned_manager) VALUES
+('Software Engineer', 'Marcus Aurelius (TL)', 'Sarah Jenkins (MGR)'),
+('Frontend Developer', 'Lucas Miller (TL)', 'Sarah Jenkins (MGR)'),
+('Backend Developer', 'Vikram Singh (TL)', 'David Chen (MGR)'),
+('Full Stack Engineer', 'Marcus Aurelius (TL)', 'David Chen (MGR)'),
+('Data Scientist', 'Elena Rostova (TL)', 'Robert Carter (MGR)'),
+('Product Manager', 'Diana Prince (TL)', 'Sophia Martinez (MGR)')
+ON CONFLICT (position_pattern) DO NOTHING;
+
+-- Enable RLS for new tables
+ALTER TABLE public.candidates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.assignment_rules ENABLE ROW LEVEL SECURITY;
+
+-- Policies for Candidates and Assignment Rules
+CREATE POLICY "Public Read Candidates" ON public.candidates FOR SELECT USING (true);
+CREATE POLICY "Public Insert Candidates" ON public.candidates FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public Update Candidates" ON public.candidates FOR UPDATE USING (true);
+CREATE POLICY "Public Delete Candidates" ON public.candidates FOR DELETE USING (true);
+
+CREATE POLICY "Public Read Rules" ON public.assignment_rules FOR SELECT USING (true);
+CREATE POLICY "Public Insert Rules" ON public.assignment_rules FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public Update Rules" ON public.assignment_rules FOR UPDATE USING (true);
+CREATE POLICY "Public Delete Rules" ON public.assignment_rules FOR DELETE USING (true);
+

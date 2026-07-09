@@ -18,10 +18,14 @@ app.use(express.json());
 const uploadRouter = require('./routes/upload');
 const analyzeRouter = require('./routes/analyze');
 const resumesRouter = require('./routes/resumes');
+const candidatesRouter = require('./routes/candidates');
+const rulesRouter = require('./routes/rules');
 
 app.use('/api/upload', uploadRouter);
 app.use('/api/analyze', analyzeRouter);
 app.use('/api/resumes', resumesRouter);
+app.use('/api/candidates', candidatesRouter);
+app.use('/api/rules', rulesRouter);
 
 app.get('/', (req, res) => {
   res.send('HireSight API is running');
