@@ -15,18 +15,13 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 no-underline group">
-          <div className="bg-indigo-600 p-2 rounded-xl shadow-md group-hover:bg-indigo-500 transition-colors">
-            <Briefcase className="text-white" size={18} />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-lg font-black tracking-tight text-slate-900 font-outfit leading-none">
-              HireSight
-            </span>
-            <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">
-              Recruitment Suite
-            </span>
-          </div>
+        <Link to="/" className="flex flex-col no-underline group">
+          <span className="text-lg font-black tracking-tight text-slate-900 font-outfit leading-none">
+            HireSight
+          </span>
+          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">
+            Recruitment Suite
+          </span>
         </Link>
         
         {/* Navigation Tabs depending on context */}

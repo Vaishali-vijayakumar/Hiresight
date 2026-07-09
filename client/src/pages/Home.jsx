@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ShieldCheck, UserCheck, Sparkles, FileText, UploadCloud, Users, Layers, Award } from 'lucide-react';
+import { UserCheck, FileText, UploadCloud, Users, Layers, Award } from 'lucide-react';
 
 const Home = () => {
   return (
@@ -20,8 +20,7 @@ const Home = () => {
             transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 px-3.5 py-1 bg-indigo-50 border border-indigo-100 rounded-full text-indigo-600 text-xs font-bold uppercase tracking-wider mb-6"
           >
-            <Sparkles size={12} />
-            <span>AI-Driven Recruitment Suite</span>
+            <span>Recruitment Suite</span>
           </motion.div>
           
           <motion.h1 
@@ -56,9 +55,6 @@ const Home = () => {
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl pointer-events-none group-hover:bg-indigo-600/10 transition-all"></div>
             <div>
-              <div className="w-12 h-12 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 mb-8 group-hover:scale-105 transition-transform">
-                <ShieldCheck size={24} />
-              </div>
               <h2 className="text-2xl font-bold font-outfit mb-3 text-slate-900">HR Admin Workspace</h2>
               <p className="text-slate-500 text-sm leading-relaxed mb-8">
                 Upload multiple candidate profiles via CSV lists, structure automated screening workflows, assign applicants to designated managers, and track interview progress within a visual pipeline.
@@ -100,9 +96,6 @@ const Home = () => {
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-pink-600/5 rounded-full blur-3xl pointer-events-none group-hover:bg-pink-600/10 transition-all"></div>
             <div>
-              <div className="w-12 h-12 bg-pink-50 border border-pink-100 rounded-xl flex items-center justify-center text-pink-600 mb-8 group-hover:scale-105 transition-transform">
-                <Sparkles size={24} />
-              </div>
               <h2 className="text-2xl font-bold font-outfit mb-3 text-slate-900">Candidate ATS Hub</h2>
               <p className="text-slate-500 text-sm leading-relaxed mb-8">
                 Build your professional resume step-by-step using an interactive builder, score it against target job requirements, obtain keyword optimization suggestions, and download a polished PDF layout.
@@ -119,7 +112,7 @@ const Home = () => {
                   <span>Real-time ATS suitability scoring (0-100)</span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <Sparkles size={16} className="text-pink-600 shrink-0" />
+                  <FileText size={16} className="text-pink-600 shrink-0" />
                   <span>Tailored keyword and phrasing suggestions</span>
                 </li>
               </ul>

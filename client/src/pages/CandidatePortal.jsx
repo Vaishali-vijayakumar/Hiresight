@@ -526,7 +526,7 @@ const CandidatePortal = () => {
                             {generatingAi ? (
                               <><RefreshCw size={12} className="animate-spin" /> Auto-writing...</>
                             ) : (
-                              <><Sparkles size={12} /> Suggest Summary with AI</>
+                              <><Sparkles size={12} /> Auto-write Summary</>
                             )}
                           </button>
                         </div>
