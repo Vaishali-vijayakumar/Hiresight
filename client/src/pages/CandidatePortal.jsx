@@ -271,24 +271,44 @@ const CandidatePortal = () => {
       
       <style>{`
         @media print {
-          body * {
-            visibility: hidden;
+          /* Hide everything by default */
+          body > * { display: none !important; }
+
+          /* Show only the root app wrapper so React tree renders */
+          body > #root { display: block !important; }
+
+          /* Hide all page chrome */
+          nav, footer, .no-print { display: none !important; }
+
+          /* Hide everything inside the page except the active print area */
+          #root * { display: none !important; }
+
+          /* Show the builder resume print area */
+          #print-area-resume,
+          #print-area-resume * {
+            display: block !important;
+            visibility: visible !important;
           }
-          #print-area, #print-area * {
-            visibility: visible;
+
+          /* Show the auditor report print area */
+          #print-area-report,
+          #print-area-report * {
+            display: block !important;
+            visibility: visible !important;
           }
-          #print-area {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            padding: 0;
-            margin: 0;
-            box-shadow: none;
-            border: none;
-          }
-          nav, footer, .no-print {
-            display: none !important;
+
+          /* Reset positioning for clean A4 print layout */
+          #print-area-resume,
+          #print-area-report {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 40px !important;
+            box-shadow: none !important;
+            border: none !important;
+            background: white !important;
           }
         }
       `}</style>
@@ -608,7 +628,7 @@ const CandidatePortal = () => {
 
                 {/* Print/Preview Resume Paper sheet */}
                 <div 
-                  id="print-area"
+                  id="print-area-resume"
                   className="w-full bg-white border border-slate-200 shadow-xl p-10 text-slate-800 font-sans min-h-[750px] rounded-xl flex flex-col justify-between"
                 >
                   <div>
@@ -933,7 +953,7 @@ const CandidatePortal = () => {
                 </div>
 
                 <div 
-                  id="print-area"
+                  id="print-area-report"
                   className="mx-auto w-full max-w-[800px] bg-white border border-slate-200 shadow-xl p-12 text-slate-800 font-sans min-h-[950px] mb-20 flex flex-col justify-between"
                 >
                   <div className="border-b-2 border-slate-800 pb-5 mb-6">
