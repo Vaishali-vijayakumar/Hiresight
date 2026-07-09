@@ -379,28 +379,35 @@ const CandidatePortal = () => {
                   <div className="absolute top-0 right-0 w-24 h-24 bg-pink-500/5 rounded-full blur-2xl"></div>
                   <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 font-outfit">ATS Compatibility Score</h3>
                   
-                  <div className="flex items-center gap-6">
-                    <div className="relative w-24 h-24 shrink-0 flex items-center justify-center">
-                      <svg className="absolute w-full h-full transform -rotate-90">
-                        <circle cx="48" cy="48" r="40" stroke="rgba(0,0,0,0.05)" strokeWidth="8" fill="transparent" />
-                        <circle cx="48" cy="48" r="40" stroke="#ec4899" strokeWidth="8" fill="transparent" 
-                          strokeDasharray="251.2"
-                          strokeDashoffset={251.2 - (251.2 * atsScore) / 100}
-                          className="transition-all duration-500"
-                        />
-                      </svg>
-                      <span className="text-2xl font-black font-outfit text-slate-900">{atsScore}%</span>
+                  {targetRole.trim() ? (
+                    <div className="flex items-center gap-6">
+                      <div className="relative w-24 h-24 shrink-0 flex items-center justify-center">
+                        <svg className="absolute w-full h-full transform -rotate-90">
+                          <circle cx="48" cy="48" r="40" stroke="rgba(0,0,0,0.05)" strokeWidth="8" fill="transparent" />
+                          <circle cx="48" cy="48" r="40" stroke="#ec4899" strokeWidth="8" fill="transparent" 
+                            strokeDasharray="251.2"
+                            strokeDashoffset={251.2 - (251.2 * atsScore) / 100}
+                            className="transition-all duration-500"
+                          />
+                        </svg>
+                        <span className="text-2xl font-black font-outfit text-slate-900">{atsScore}%</span>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-extrabold text-base text-slate-800">
+                          {atsScore >= 75 ? 'Excellent Match' : atsScore >= 50 ? 'Moderate Match' : 'Weak Match'}
+                        </h4>
+                        <p className="text-xs text-slate-500 mt-1 leading-relaxed font-medium">
+                          Auditing resume keywords against targeted skills for <span className="font-bold text-slate-800">"{targetRole}"</span>.
+                        </p>
+                      </div>
                     </div>
-                    
-                    <div>
-                      <h4 className="font-extrabold text-base text-slate-800">
-                        {atsScore >= 75 ? 'Excellent Match' : atsScore >= 50 ? 'Moderate Match' : 'Weak Match'}
-                      </h4>
-                      <p className="text-xs text-slate-500 mt-1 leading-relaxed font-medium">
-                        Auditing resume keywords against targeted skills for <span className="font-bold text-slate-800">"{targetRole}"</span>.
-                      </p>
+                  ) : (
+                    <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-100 rounded-lg text-[11px] text-amber-800 font-semibold">
+                      <AlertCircle size={14} className="shrink-0" />
+                      <span>Please enter a target role above to calculate your ATS match score.</span>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Dynamic Keywords suggested based on text role input */}
@@ -474,26 +481,35 @@ const CandidatePortal = () => {
                   Resume Audit & Optimization Report
                 </h1>
                 <p className="text-center text-xs text-slate-500 font-medium">
-                  Target Position: <span className="font-bold text-slate-800">{targetRole}</span> | Overall Score: <span className="font-bold text-slate-800">{atsScore}%</span>
+                  Target Position: <span className="font-bold text-slate-800">{targetRole || 'Not Specified'}</span>
+                  {targetRole.trim() && <> | Overall Score: <span className="font-bold text-slate-800">{atsScore}%</span></>}
                 </p>
               </div>
 
               {/* Match overview */}
               <div className="py-4">
                 <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-1 mb-3">Audit Summary</h3>
-                <p className="text-xs leading-relaxed text-slate-700 mb-2">
-                  This optimization report calculates the keyword alignment density of your resume text against the requirements of the custom target job role.
-                </p>
-                <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-100 text-xs mt-3">
-                  <div>
-                    <span className="font-bold text-slate-500">Keywords Matched:</span>
-                    <p className="font-extrabold text-emerald-700 mt-0.5">{matchedKeywords.length} keywords</p>
-                  </div>
-                  <div>
-                    <span className="font-bold text-slate-500">Keywords Missing:</span>
-                    <p className="font-extrabold text-rose-600 mt-0.5">{missingKeywords.length} keywords</p>
-                  </div>
-                </div>
+                {targetRole.trim() ? (
+                  <>
+                    <p className="text-xs leading-relaxed text-slate-700 mb-2">
+                      This optimization report calculates the keyword alignment density of your resume text against the requirements of the custom target job role.
+                    </p>
+                    <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-100 text-xs mt-3">
+                      <div>
+                        <span className="font-bold text-slate-500">Keywords Matched:</span>
+                        <p className="font-extrabold text-emerald-700 mt-0.5">{matchedKeywords.length} keywords</p>
+                      </div>
+                      <div>
+                        <span className="font-bold text-slate-500">Keywords Missing:</span>
+                        <p className="font-extrabold text-rose-600 mt-0.5">{missingKeywords.length} keywords</p>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-xs italic text-slate-400">
+                    No target position specified. Please type a target role to calculate ATS score, matched and missing keywords.
+                  </p>
+                )}
               </div>
 
               {/* Matched Keywords */}
