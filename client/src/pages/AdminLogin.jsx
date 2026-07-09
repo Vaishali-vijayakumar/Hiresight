@@ -1,33 +1,34 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Lock, Mail, AlertCircle, ArrowRight } from 'lucide-react';
+import axios from 'axios';
+import { Lock, Mail, AlertCircle, ArrowRight } from 'lucide-react';
+import { API_URL } from '../config';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('admin@hiresight.com');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    // Simulate authentication check
-    setTimeout(() => {
-      if (email === 'admin@hiresight.com' && password === 'password123') {
+    try {
+      const response = await axios.post(`${API_URL}/admin/login`, { email, password });
+      if (response.data.success) {
         localStorage.setItem('admin_authenticated', 'true');
         setLoading(false);
-        // Force state update across app by pushing window location or navigating
         navigate('/admin');
         window.location.reload();
-      } else {
-        setLoading(false);
-        setError('Invalid administrator email or password.');
       }
-    }, 800);
+    } catch (err) {
+      setLoading(false);
+      setError(err.response?.data?.error || 'Invalid administrator email or password.');
+    }
   };
 
   return (
@@ -41,7 +42,7 @@ const AdminLogin = () => {
         transition={{ duration: 0.4 }}
         className="surface-card bg-white border border-slate-200 rounded-2xl shadow-xl p-8 max-w-md w-full relative z-10"
       >
-        {/* Lock badge header */}
+        {/* Header */}
         <div className="flex flex-col items-center text-center mb-8">
           <div className="w-12 h-12 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 mb-4">
             <Lock size={22} />
@@ -101,15 +102,6 @@ const AdminLogin = () => {
             {!loading && <ArrowRight size={14} />}
           </button>
         </form>
-
-        {/* Demo Hint Banner */}
-        <div className="mt-8 pt-6 border-t border-slate-100 text-center">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-2">Demo Access Credentials</span>
-          <div className="bg-slate-50 border border-slate-150 rounded-lg p-2.5 text-[10px] font-mono text-slate-600 text-left space-y-0.5">
-            <p><span className="font-bold text-slate-700">Email:</span> admin@hiresight.com</p>
-            <p><span className="font-bold text-slate-700">Pass:</span> password123</p>
-          </div>
-        </div>
 
       </motion.div>
     </div>
