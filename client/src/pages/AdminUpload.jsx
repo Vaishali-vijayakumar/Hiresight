@@ -189,25 +189,25 @@ Angelica,Schuyler,angelica@schuyler.com,+15550044,Product Manager,5 years,"Agile
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              className="surface-card p-10 bg-slate-900 text-white text-center flex flex-col items-center"
+              className="surface-card p-10 bg-white border border-slate-200 text-slate-800 text-center flex flex-col items-center shadow-sm"
             >
-              <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-6">
                 <CheckCircle2 size={36} />
               </div>
-              <h2 className="text-2xl font-bold font-outfit mb-3">Bulk Ingestion Completed!</h2>
-              <p className="text-slate-400 text-sm max-w-md mx-auto mb-8">
-                Successfully processed and imported <span className="text-white font-bold">{importCount} candidates</span> into your Talent Pool. Appropriate managers and team leads have been assigned.
+              <h2 className="text-2xl font-bold font-outfit text-slate-900 mb-3">Bulk Ingestion Completed!</h2>
+              <p className="text-slate-500 text-sm max-w-md mx-auto mb-8">
+                Successfully processed and imported <span className="text-indigo-600 font-bold">{importCount} candidates</span> into your Talent Pool. Appropriate managers and team leads have been assigned.
               </p>
               <div className="flex gap-4">
                 <button 
                   onClick={() => navigate('/admin/candidates')}
-                  className="btn btn-primary"
+                  className="btn btn-primary shadow-sm"
                 >
                   View Candidate Pool
                 </button>
                 <button 
                   onClick={() => { setStatus('idle'); setParsedCandidates([]); setFile(null); setCsvText(''); }}
-                  className="btn btn-secondary bg-slate-800 text-white border-slate-700 hover:bg-slate-700"
+                  className="btn btn-secondary shadow-sm"
                 >
                   Upload Another File
                 </button>
@@ -366,15 +366,15 @@ Angelica,Schuyler,angelica@schuyler.com,+15550044,Product Manager,5 years,"Agile
               </div>
 
               {/* Guidelines helper box */}
-              <div className="lg:col-span-5 surface-card p-6 bg-slate-900 text-white flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="lg:col-span-5 surface-card p-6 bg-indigo-50 border border-indigo-100 text-indigo-950 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-slate-800 rounded-xl text-indigo-400 shrink-0">
+                  <div className="p-2.5 bg-indigo-100 rounded-xl text-indigo-600 shrink-0">
                     <HelpCircle size={20} />
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm text-white font-outfit">CSV Header Requirements</h4>
-                    <p className="text-slate-400 text-xs mt-0.5 max-w-2xl leading-relaxed">
-                      For a successful import, ensure your CSV includes headings like: <code className="bg-slate-800 px-1 py-0.5 rounded text-indigo-300">First Name</code>, <code className="bg-slate-800 px-1 py-0.5 rounded text-indigo-300">Email</code>, <code className="bg-slate-800 px-1 py-0.5 rounded text-indigo-300">Position</code>, and <code className="bg-slate-800 px-1 py-0.5 rounded text-indigo-300">Skills</code>. Capitalization and ordering do not matter.
+                    <h4 className="font-bold text-sm text-indigo-900 font-outfit">CSV Header Requirements</h4>
+                    <p className="text-indigo-700 text-xs mt-0.5 max-w-2xl leading-relaxed">
+                      For a successful import, ensure your CSV includes headings like: <code className="bg-indigo-100/50 px-1 py-0.5 rounded text-indigo-800 font-bold">First Name</code>, <code className="bg-indigo-100/50 px-1 py-0.5 rounded text-indigo-800 font-bold">Email</code>, <code className="bg-indigo-100/50 px-1 py-0.5 rounded text-indigo-800 font-bold">Position</code>, and <code className="bg-indigo-100/50 px-1 py-0.5 rounded text-indigo-800 font-bold">Skills</code>. Capitalization and ordering do not matter.
                     </p>
                   </div>
                 </div>

@@ -197,14 +197,14 @@ const AdminDashboard = () => {
             </div>
 
             {/* Quick Tips */}
-            <div className="surface-card bg-indigo-900 text-white p-6 md:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="surface-card bg-indigo-50 border border-indigo-100 p-6 md:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
               <div>
-                <h4 className="text-white font-bold mb-1 font-outfit text-base">Automatic Assignment Rules</h4>
-                <p className="text-indigo-200 text-xs max-w-md">
+                <h4 className="text-indigo-900 font-bold mb-1 font-outfit text-base">Automatic Assignment Rules</h4>
+                <p className="text-indigo-700 text-xs max-w-md">
                   Candidates imported via CSV or manually are automatically routed to specific Team Leads (TL) and Managers according to their applied job title. Setup rules on the right to manage routing.
                 </p>
               </div>
-              <Link to="/admin/upload" className="btn bg-white text-indigo-900 hover:bg-slate-100 text-xs font-bold shrink-0 hover:no-underline">
+              <Link to="/admin/upload" className="btn bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shrink-0 hover:no-underline shadow-sm">
                 Upload LinkedIn CSV
               </Link>
             </div>
