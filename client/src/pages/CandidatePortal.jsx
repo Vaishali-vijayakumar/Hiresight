@@ -109,8 +109,20 @@ const CandidatePortal = () => {
     if (role.includes('full') || role.includes('stack') || role.includes('web')) {
       return ['React', 'Node.js', 'JavaScript', 'Express', 'SQL', 'REST APIs', 'Git', 'TailwindCSS', 'TypeScript', 'API Design'];
     }
-    if (role.includes('data') || role.includes('analyst') || role.includes('science') || role.includes('ml') || role.includes('python')) {
-      return ['Python', 'SQL', 'Pandas', 'Machine Learning', 'Data Analysis', 'Tableau', 'Data Visualization', 'Statistics', 'Jupyter', 'NumPy'];
+    if (role.includes('mobile') || role.includes('ios') || role.includes('android') || role.includes('app') || role.includes('swift') || role.includes('flutter')) {
+      return ['React Native', 'Swift', 'Kotlin', 'iOS', 'Android', 'Flutter', 'Xcode', 'Mobile UI', 'APIs', 'Git', 'CocoaPods'];
+    }
+    if (role.includes('cyber') || role.includes('security') || role.includes('infosec') || role.includes('penetration') || role.includes('network')) {
+      return ['Network Security', 'Penetration Testing', 'Firewalls', 'SIEM', 'Cryptography', 'Linux', 'Vulnerability Assessment', 'OWASP', 'Incident Response', 'Wireshark'];
+    }
+    if (role.includes('devops') || role.includes('cloud') || role.includes('aws') || role.includes('infra') || role.includes('azure') || role.includes('gcp')) {
+      return ['AWS', 'CI/CD', 'Docker', 'Kubernetes', 'Terraform', 'Linux', 'GCP', 'Azure', 'Bash', 'GitHub Actions', 'Cloud Security'];
+    }
+    if (role.includes('ai') || role.includes('machine') || role.includes('deep') || role.includes('learning') || role.includes('nlp') || role.includes('computational')) {
+      return ['Python', 'Machine Learning', 'Deep Learning', 'PyTorch', 'TensorFlow', 'NLP', 'Data Pipelines', 'SQL', 'Model Deployment', 'Git'];
+    }
+    if (role.includes('data') || role.includes('analyst') || role.includes('science') || role.includes('statistics')) {
+      return ['Python', 'SQL', 'Pandas', 'Data Analysis', 'Tableau', 'Data Visualization', 'Statistics', 'Jupyter', 'NumPy', 'PowerBI'];
     }
     if (role.includes('product') || role.includes('project') || role.includes('manager') || role.includes('scrum')) {
       return ['Product Strategy', 'Agile', 'Scrum', 'Jira', 'Roadmapping', 'User Stories', 'Cross-functional Collaboration', 'Product Metrics', 'Market Research'];
@@ -118,11 +130,17 @@ const CandidatePortal = () => {
     if (role.includes('qa') || role.includes('test') || role.includes('quality') || role.includes('engineer')) {
       return ['Automated Testing', 'Selenium', 'Test Cases', 'CI/CD', 'Bug Tracking', 'Jira', 'Regression Testing', 'Quality Assurance', 'Playwright', 'Unit Testing'];
     }
-    if (role.includes('devops') || role.includes('cloud') || role.includes('aws') || role.includes('infra')) {
-      return ['AWS', 'CI/CD', 'Docker', 'Kubernetes', 'Terraform', 'Linux', 'Bash', 'GitHub Actions', 'Monitoring', 'Cloud Security'];
-    }
-    if (role.includes('design') || role.includes('figma') || role.includes('graphic') || role.includes('creator')) {
+    if (role.includes('design') || role.includes('figma') || role.includes('graphic') || role.includes('creator') || role.includes('photoshop')) {
       return ['Figma', 'UI Design', 'UX Research', 'Wireframing', 'Prototyping', 'Adobe Illustrator', 'Visual Branding', 'Typography', 'User Journey'];
+    }
+    if (role.includes('marketing') || role.includes('seo') || role.includes('growth') || role.includes('ads') || role.includes('sales') || role.includes('account')) {
+      return ['SEO', 'Google Analytics', 'Content Strategy', 'Social Media', 'Email Campaigns', 'CRM', 'Salesforce', 'Copywriting', 'Lead Generation', 'Market Research'];
+    }
+    if (role.includes('hr') || role.includes('human') || role.includes('recruiter') || role.includes('talent') || role.includes('people')) {
+      return ['Applicant Tracking Systems', 'Talent Acquisition', 'Onboarding', 'Employee Relations', 'HRIS', 'Sourcing', 'Interviewing', 'Performance Management'];
+    }
+    if (role.includes('finance') || role.includes('financial') || role.includes('accounting') || role.includes('excel')) {
+      return ['Financial Modeling', 'Excel', 'Accounting', 'Valuation', 'Data Analysis', 'SQL', 'Risk Management', 'Reporting', 'Budgeting'];
     }
     return ['Communication', 'Problem Solving', 'Teamwork', 'Project Management', 'Agile', 'Documentation', 'Technical Skills', 'Leadership', 'Execution'];
   };
@@ -469,6 +487,29 @@ const CandidatePortal = () => {
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-slate-500">Skills list (Comma-separated)</label>
                         <textarea rows={4} name="skills" value={builderData.skills} onChange={handleBuilderFieldChange} className="input-field text-xs bg-slate-50 resize-none" placeholder="React, Node.js, SQL, AWS..." />
+                      </div>
+
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 mt-2">
+                        <span className="text-[10px] text-pink-600 font-bold uppercase tracking-wider block mb-1.5">Suggested Skills for "{builderData.targetRole}"</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {getDynamicKeywordsForRole(builderData.targetRole).map(skill => (
+                            <button
+                              key={skill}
+                              type="button"
+                              onClick={() => {
+                                const currentSkills = builderData.skills.trim();
+                                if (!currentSkills.toLowerCase().includes(skill.toLowerCase())) {
+                                  const updatedSkills = currentSkills ? `${currentSkills}, ${skill}` : skill;
+                                  setBuilderData(prev => ({ ...prev, skills: updatedSkills }));
+                                }
+                              }}
+                              className="px-2 py-0.5 bg-white border border-slate-200 rounded-md text-[10px] text-slate-600 font-semibold hover:bg-pink-50 hover:text-pink-600 hover:border-pink-200 transition-colors"
+                            >
+                              + {skill}
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-[9px] text-slate-400 mt-2 font-medium">Click a skill to append it to your list and improve your ATS formatting compliance.</p>
                       </div>
 
                       <div className="flex justify-between items-center pt-2">
