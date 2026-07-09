@@ -1,11 +1,18 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
+import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminCandidates from './pages/AdminCandidates';
 import AdminUpload from './pages/AdminUpload';
 import CandidatePortal from './pages/CandidatePortal';
+
+// Admin Protected Route Guard
+const AdminProtectedRoute = ({ children }) => {
+  const isAuth = localStorage.getItem('admin_authenticated') === 'true';
+  return isAuth ? children : <Navigate to="/admin/login" replace />;
+};
 
 function App() {
   return (
@@ -16,10 +23,13 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             
-            {/* HR Admin Portal */}
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/candidates" element={<AdminCandidates />} />
-            <Route path="/admin/upload" element={<AdminUpload />} />
+            {/* HR Admin Portal Auth */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            
+            {/* Guarded HR Admin Portal */}
+            <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
+            <Route path="/admin/candidates" element={<AdminProtectedRoute><AdminCandidates /></AdminProtectedRoute>} />
+            <Route path="/admin/upload" element={<AdminProtectedRoute><AdminUpload /></AdminProtectedRoute>} />
             
             {/* Candidate Portal */}
             <Route path="/candidate" element={<CandidatePortal />} />

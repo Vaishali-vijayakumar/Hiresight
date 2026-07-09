@@ -7,8 +7,14 @@ const Navbar = () => {
   const path = location.pathname;
 
   // Determine current portal context
-  const isAdminPortal = path.startsWith('/admin');
+  const isAuth = localStorage.getItem('admin_authenticated') === 'true';
+  const isAdminPortal = path.startsWith('/admin') && isAuth;
   const isCandidatePortal = path.startsWith('/candidate');
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin_authenticated');
+    window.location.href = '/';
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 text-slate-800 shadow-sm">
@@ -79,9 +85,24 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Quick Portal Switcher */}
+        {/* Quick Portal Switcher / Sign Out */}
         <div>
-          {isAdminPortal ? (
+          {path.startsWith('/admin') && isAuth ? (
+            <div className="flex items-center gap-3">
+              <Link
+                to="/candidate"
+                className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg transition-all no-underline"
+              >
+                <span>Candidate Portal</span>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-bold transition-all shadow-sm"
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : path.startsWith('/admin') ? (
             <Link
               to="/candidate"
               className="flex items-center gap-2 px-4 py-2 text-xs font-bold bg-pink-600 hover:bg-pink-500 text-white rounded-lg transition-all no-underline shadow-sm"
