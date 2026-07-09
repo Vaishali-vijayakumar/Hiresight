@@ -9,6 +9,10 @@ const CandidatePortal = () => {
   const [portalMode, setPortalMode] = useState(null); // null, 'builder', 'auditor'
   const [auditorSubState, setAuditorSubState] = useState('choose'); // 'choose', 'active'
   
+  const handlePrint = () => {
+    window.print();
+  };
+  
   // ==========================================
   // 1. PATH A: ATS RESUME BUILDER STATE
   // ==========================================
